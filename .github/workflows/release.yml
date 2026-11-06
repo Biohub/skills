@@ -1,0 +1,37 @@
+name: Release
+
+# Runs only in the public Biohub/skills: merging a release/v* pull request tags the merge commit and creates the release.
+on:
+  pull_request:
+    types: [closed]
+    branches: [main]
+
+permissions: {}
+
+jobs:
+  release:
+    permissions:
+      # Creates the tag and the release, and deletes the release branch.
+      contents: write
+    if: >-
+      github.repository == 'Biohub/skills'
+      && github.event.pull_request.merged
+      && startsWith(github.event.pull_request.head.ref, 'release/v')
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    steps:
+      - name: Tag the merge commit and create the release
+        env:
+          GH_TOKEN: ${{ github.token }}
+          BRANCH: ${{ github.event.pull_request.head.ref }}
+          MERGE_SHA: ${{ github.event.pull_request.merge_commit_sha }}
+        run: |
+          tag="${BRANCH#release/}"
+          # A tag with a suffix, such as v1.0.0-rc.1, is a pre-release and never the latest release.
+          prerelease=()
+          if [[ "$tag" == *-* ]]; then
+            prerelease=(--prerelease)
+          fi
+          gh release create "$tag" -R "$GITHUB_REPOSITORY" --target "$MERGE_SHA" --title "$tag" \
+            --notes "Biohub Skills $tag." "${prerelease[@]}"
+          gh api -X DELETE "repos/$GITHUB_REPOSITORY/git/refs/heads/$BRANCH"
