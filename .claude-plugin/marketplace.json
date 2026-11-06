@@ -1,0 +1,26 @@
+{
+  "name": "biohub-esm",
+  "description": "Biohub ESM skills and the public Biohub MCP for protein research.",
+  "owner": {
+    "name": "Chan Zuckerberg Biohub, Inc.",
+    "email": "support@biohub.org",
+    "url": "https://biohub.org/"
+  },
+  "plugins": [
+    {
+      "name": "biohub-esm",
+      "source": "./plugins/biohub-esm",
+      "category": "Education & Research"
+    },
+    {
+      "name": "biohub-waveorder",
+      "source": "./plugins/biohub-waveorder",
+      "category": "Education & Research"
+    },
+    {
+      "name": "biohub-tcr",
+      "source": "./plugins/biohub-tcr",
+      "category": "Education & Research"
+    }
+  ]
+}

@@ -1,0 +1,61 @@
+{
+  "query_label": "hemoglobin",
+  "proteins": [
+    {
+      "accession": "P68871",
+      "protein_name": "Hemoglobin subunit beta",
+      "gene": "HBB",
+      "organism": "Homo sapiens",
+      "function": "Involved in oxygen transport from the lung to the various peripheral tissues | LVV-hemorphin-7 potentiates the activity of bradykinin, causing a decrease in blood pressure | Functions as an endogenous inhibitor of enkephalin-degrading enzymes such as DPP3, and as a selective antagonist of the P2RX3 receptor which is involved in pain signaling, these properties implicate it as a regulator of pain and inflammation",
+      "sequence": "MVHLTPEEKSAVTALWGKVNVDEVGGEALGRLLVVYPWTQRFFESFGDLSTPDAVMGNPKVKAHGKKVLGAFSDGLAHLDNLKGTFATLSELHCDKLHVDPENFRLLGNVLVCVLAHHFGKEFTPPVQAAYQKVVAGVANALAHKYH",
+      "sequence_length": 147
+    },
+    {
+      "accession": "P02042",
+      "protein_name": "Hemoglobin subunit delta",
+      "gene": "HBD",
+      "organism": "Homo sapiens",
+      "function": "Involved in oxygen transport from the lung to the various peripheral tissues",
+      "sequence": "MVHLTPEEKTAVNALWGKVNVDAVGGEALGRLLVVYPWTQRFFESFGDLSSPDAVMGNPKVKAHGKKVLGAFSDGLAHLDNLKGTFSQLSELHCDKLHVDPENFRLLGNVLVCVLARNFGKEFTPQMQAAYQKVVAGVANALAHKYH",
+      "sequence_length": 147
+    },
+    {
+      "accession": "P02100",
+      "protein_name": "Hemoglobin subunit epsilon",
+      "gene": "HBE1",
+      "organism": "Homo sapiens",
+      "function": "The epsilon chain is a beta-type chain of early mammalian embryonic hemoglobin",
+      "sequence": "MVHFTAEEKAAVTSLWSKMNVEEAGGEALGRLLVVYPWTQRFFDSFGNLSSPSAILGNPKVKAHGKKVLTSFGDAIKNMDNLKPAFAKLSELHCDKLHVDPENFKLLGNVMVIILATHFGKEFTPEVQAAWQKLVSAVAIALAHKYH",
+      "sequence_length": 147
+    },
+    {
+      "accession": "P69892",
+      "protein_name": "Hemoglobin subunit gamma-2",
+      "gene": "HBG2",
+      "organism": "Homo sapiens",
+      "function": "Gamma chains make up the fetal hemoglobin F, in combination with alpha chains",
+      "sequence": "MGHFTEEDKATITSLWGKVNVEDAGGETLGRLLVVYPWTQRFFDSFGNLSSASAIMGNPKVKAHGKKVLTSLGDAIKHLDDLKGTFAQLSELHCDKLHVDPENFKLLGNVLVTVLAIHFGKEFTPEVQASWQKMVTGVASALSSRYH",
+      "sequence_length": 147
+    },
+    {
+      "accession": "P02008",
+      "protein_name": "Hemoglobin subunit zeta",
+      "gene": "HBZ",
+      "organism": "Homo sapiens",
+      "function": "The zeta chain is an alpha-type chain of mammalian embryonic hemoglobin",
+      "sequence": "MSLTKTERTIIVSMWAKISTQADTIGTETLERLFLSHPQTKTYFPHFDLHPGSAQLRAHGSKVVAAVGDAVKSIDDIGGALSKLSELHAYILRVDPVNFKLLSHCLLVTLAARFPADFTAEAHAAWDKFLSVVSSVLTEKYR",
+      "sequence_length": 142
+    },
+    {
+      "accession": "P69891",
+      "protein_name": "Hemoglobin subunit gamma-1",
+      "gene": "HBG1",
+      "organism": "Homo sapiens",
+      "function": "Gamma chains make up the fetal hemoglobin F, in combination with alpha chains",
+      "sequence": "MGHFTEEDKATITSLWGKVNVEDAGGETLGRLLVVYPWTQRFFDSFGNLSSASAIMGNPKVKAHGKKVLTSLGDATKHLDDLKGTFAQLSELHCDKLHVDPENFKLLGNVLVTVLAIHFGKEFTPEVQASWQKMVTAVASALSSRYH",
+      "sequence_length": 147
+    }
+  ],
+  "num_results": 6,
+  "total_results": 101574
+}

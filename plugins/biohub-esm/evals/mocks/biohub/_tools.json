@@ -1,0 +1,4349 @@
+{
+  "tools": [
+    {
+      "_meta": {
+        "ui": {
+          "resourceUri": "ui://biohub-public/structure-viewer/v1",
+          "visibility": [
+            "model"
+          ]
+        },
+        "fastmcp": {
+          "tags": [
+            "esm_atlas",
+            "public",
+            "ui"
+          ]
+        }
+      },
+      "annotations": {
+        "destructiveHint": false,
+        "idempotentHint": false,
+        "openWorldHint": false,
+        "readOnlyHint": false,
+        "title": "Show structure"
+      },
+      "description": "Show a protein, or a complex of proteins, DNA, RNA and small-molecule ligands, in an interactive 3D viewer from sequences. Use it when the user wants to see or visualize a structure or how molecules fit together, such as a protein bound to ATP, a protein on DNA, or a homodimer, or when you need to look at one to answer a question about its shape. Give one entity per distinct molecule, in order, with copies for identical chains; give each DNA strand as its own entity; a ligand takes a CCD code or a SMILES string, such as [{\"type\": \"protein\", \"sequence\": \"MKTAYIAKQR\"}, {\"type\": \"ligand\", \"ccd\": \"ATP\"}]. For a protein name or accession, get the sequence first with esm_atlas_search_uniprot or esm_atlas_lookup_accession. One protein with one copy returns its ESM Atlas structure when one exists, or a prediction for up to 700 residues, at no cost. Anything else is a new fold with ESMFold2 on the Biohub Platform billed to the signed-in user's Biohub account, so call it once per request; a complex holds up to 768 tokens, one per residue or nucleotide and one per ligand heavy atom, counted for every copy, in at most 36 chains; larger complexes need the Batch API. Structures are computational predictions, not experimental. In clients that support MCP Apps, the user gets an interactive viewer they can rotate, recolor, and select residues in without another call; the result has each entity's chain IDs, pTM, ipTM and warnings, and only the viewer gets the coordinates. Nothing is saved and no link is created. The result has no image by default. Set include_png to true only when you need to see the structure yourself or the client can't show the viewer, because it adds several seconds. Without an image, don't describe how the structure looks.",
+      "inputSchema": {
+        "properties": {
+          "entities": {
+            "description": "The molecules to show, in order; chains are labelled A, B, C, ... in this order. One protein: [{\"type\": \"protein\", \"sequence\": \"MKTAYIAKQR\"}].",
+            "items": {
+              "oneOf": [
+                {
+                  "additionalProperties": false,
+                  "properties": {
+                    "type": {
+                      "const": "protein",
+                      "type": "string"
+                    },
+                    "sequence": {
+                      "description": "One chain's amino acids, one letter each; X for unknown. Example: MKTAYIAKQR.",
+                      "maxLength": 4096,
+                      "minLength": 1,
+                      "type": "string"
+                    },
+                    "copies": {
+                      "default": 1,
+                      "description": "Identical copies of this entity, each its own chain. Example: 2 for a homodimer.",
+                      "maximum": 36,
+                      "minimum": 1,
+                      "type": "integer"
+                    }
+                  },
+                  "required": [
+                    "type",
+                    "sequence"
+                  ],
+                  "type": "object"
+                },
+                {
+                  "additionalProperties": false,
+                  "properties": {
+                    "type": {
+                      "const": "dna",
+                      "type": "string"
+                    },
+                    "sequence": {
+                      "description": "One DNA strand, 5' to 3'. Give each strand of a duplex as its own entity. Example: ACGTAC.",
+                      "maxLength": 4096,
+                      "minLength": 1,
+                      "type": "string"
+                    },
+                    "copies": {
+                      "default": 1,
+                      "description": "Identical copies of this entity, each its own chain. Example: 2 for a homodimer.",
+                      "maximum": 36,
+                      "minimum": 1,
+                      "type": "integer"
+                    }
+                  },
+                  "required": [
+                    "type",
+                    "sequence"
+                  ],
+                  "type": "object"
+                },
+                {
+                  "additionalProperties": false,
+                  "properties": {
+                    "type": {
+                      "const": "rna",
+                      "type": "string"
+                    },
+                    "sequence": {
+                      "description": "One RNA strand, 5' to 3'. Example: GCAUGC.",
+                      "maxLength": 4096,
+                      "minLength": 1,
+                      "type": "string"
+                    },
+                    "copies": {
+                      "default": 1,
+                      "description": "Identical copies of this entity, each its own chain. Example: 2 for a homodimer.",
+                      "maximum": 36,
+                      "minimum": 1,
+                      "type": "integer"
+                    }
+                  },
+                  "required": [
+                    "type",
+                    "sequence"
+                  ],
+                  "type": "object"
+                },
+                {
+                  "additionalProperties": false,
+                  "properties": {
+                    "type": {
+                      "const": "ligand",
+                      "type": "string"
+                    },
+                    "ccd": {
+                      "anyOf": [
+                        {
+                          "type": "string"
+                        },
+                        {
+                          "type": "null"
+                        }
+                      ],
+                      "default": null,
+                      "description": "A PDB Chemical Component Dictionary code. Example: ATP. Give ccd or smiles, not both."
+                    },
+                    "smiles": {
+                      "anyOf": [
+                        {
+                          "maxLength": 2000,
+                          "minLength": 1,
+                          "type": "string"
+                        },
+                        {
+                          "type": "null"
+                        }
+                      ],
+                      "default": null,
+                      "description": "A SMILES string. Example: CC(=O)Oc1ccccc1C(=O)O for aspirin. Give ccd or smiles, not both."
+                    },
+                    "copies": {
+                      "default": 1,
+                      "description": "Identical copies of this entity, each its own chain. Example: 2 for a homodimer.",
+                      "maximum": 36,
+                      "minimum": 1,
+                      "type": "integer"
+                    }
+                  },
+                  "required": [
+                    "type"
+                  ],
+                  "type": "object"
+                }
+              ]
+            },
+            "maxItems": 36,
+            "minItems": 1,
+            "type": "array"
+          },
+          "view_options": {
+            "anyOf": [
+              {
+                "additionalProperties": false,
+                "description": "Display settings never alter the original saved or downloadable file.",
+                "properties": {
+                  "representation": {
+                    "default": "cartoon",
+                    "enum": [
+                      "surface",
+                      "cartoon"
+                    ],
+                    "type": "string"
+                  },
+                  "orientation": {
+                    "default": "overview",
+                    "enum": [
+                      "overview",
+                      "hotspot-facing",
+                      "opposite",
+                      "side"
+                    ],
+                    "type": "string"
+                  },
+                  "color_by": {
+                    "anyOf": [
+                      {
+                        "enum": [
+                          "chain",
+                          "confidence"
+                        ],
+                        "type": "string"
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ],
+                    "default": null,
+                    "description": "Defaults to confidence when the structure carries confidence scores, otherwise chain."
+                  },
+                  "highlights": {
+                    "items": {
+                      "additionalProperties": false,
+                      "description": "A deposited residue address, independent of a component's flattened index.",
+                      "properties": {
+                        "chain_id": {
+                          "maxLength": 1,
+                          "minLength": 1,
+                          "type": "string"
+                        },
+                        "author_residue_number": {
+                          "maximum": 9999,
+                          "minimum": -999,
+                          "type": "integer"
+                        },
+                        "insertion_code": {
+                          "default": "",
+                          "maxLength": 1,
+                          "type": "string"
+                        },
+                        "expected_residue": {
+                          "anyOf": [
+                            {
+                              "pattern": "^[A-Z]{1,3}$",
+                              "type": "string"
+                            },
+                            {
+                              "type": "null"
+                            }
+                          ],
+                          "default": null
+                        },
+                        "color": {
+                          "anyOf": [
+                            {
+                              "pattern": "^#[0-9a-fA-F]{6}$",
+                              "type": "string"
+                            },
+                            {
+                              "type": "null"
+                            }
+                          ],
+                          "default": null
+                        }
+                      },
+                      "required": [
+                        "chain_id",
+                        "author_residue_number"
+                      ],
+                      "type": "object"
+                    },
+                    "maxItems": 32,
+                    "type": "array"
+                  },
+                  "visible_chain_ids": {
+                    "anyOf": [
+                      {
+                        "items": {
+                          "maxLength": 1,
+                          "minLength": 1,
+                          "type": "string"
+                        },
+                        "maxItems": 128,
+                        "minItems": 1,
+                        "type": "array"
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ],
+                    "default": null
+                  },
+                  "camera": {
+                    "anyOf": [
+                      {
+                        "additionalProperties": false,
+                        "description": "Mol* camera pose in angstroms with explicit projection and viewport.",
+                        "properties": {
+                          "position": {
+                            "maxItems": 3,
+                            "minItems": 3,
+                            "prefixItems": [
+                              {
+                                "maximum": 1000000.0,
+                                "minimum": -1000000.0,
+                                "type": "number"
+                              },
+                              {
+                                "maximum": 1000000.0,
+                                "minimum": -1000000.0,
+                                "type": "number"
+                              },
+                              {
+                                "maximum": 1000000.0,
+                                "minimum": -1000000.0,
+                                "type": "number"
+                              }
+                            ],
+                            "type": "array"
+                          },
+                          "target": {
+                            "maxItems": 3,
+                            "minItems": 3,
+                            "prefixItems": [
+                              {
+                                "maximum": 1000000.0,
+                                "minimum": -1000000.0,
+                                "type": "number"
+                              },
+                              {
+                                "maximum": 1000000.0,
+                                "minimum": -1000000.0,
+                                "type": "number"
+                              },
+                              {
+                                "maximum": 1000000.0,
+                                "minimum": -1000000.0,
+                                "type": "number"
+                              }
+                            ],
+                            "type": "array"
+                          },
+                          "up": {
+                            "maxItems": 3,
+                            "minItems": 3,
+                            "prefixItems": [
+                              {
+                                "maximum": 1000000.0,
+                                "minimum": -1000000.0,
+                                "type": "number"
+                              },
+                              {
+                                "maximum": 1000000.0,
+                                "minimum": -1000000.0,
+                                "type": "number"
+                              },
+                              {
+                                "maximum": 1000000.0,
+                                "minimum": -1000000.0,
+                                "type": "number"
+                              }
+                            ],
+                            "type": "array"
+                          },
+                          "projection": {
+                            "default": "orthographic",
+                            "enum": [
+                              "perspective",
+                              "orthographic"
+                            ],
+                            "type": "string"
+                          },
+                          "fov": {
+                            "default": 0.7853981633974483,
+                            "exclusiveMaximum": 3.141592653589793,
+                            "exclusiveMinimum": 0.01,
+                            "type": "number"
+                          },
+                          "radius": {
+                            "exclusiveMinimum": 0,
+                            "maximum": 1000000.0,
+                            "type": "number"
+                          },
+                          "radius_max": {
+                            "exclusiveMinimum": 0,
+                            "maximum": 1000000.0,
+                            "type": "number"
+                          },
+                          "viewport": {
+                            "additionalProperties": false,
+                            "description": "Source canvas dimensions needed to preserve a camera's aspect ratio.",
+                            "properties": {
+                              "width": {
+                                "default": 1024,
+                                "maximum": 4096,
+                                "minimum": 64,
+                                "type": "integer"
+                              },
+                              "height": {
+                                "default": 768,
+                                "maximum": 4096,
+                                "minimum": 64,
+                                "type": "integer"
+                              }
+                            },
+                            "type": "object"
+                          }
+                        },
+                        "required": [
+                          "position",
+                          "target",
+                          "up",
+                          "radius",
+                          "radius_max"
+                        ],
+                        "type": "object"
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ],
+                    "default": null
+                  }
+                },
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "description": "Optional starting display: cartoon or surface, orientation, color by chain or by per-residue confidence (polymers only), up to 32 highlighted residues (chain ID plus the residue number in the structure file), and which chains to show. hotspot-facing needs at least one highlight. Leave camera unset unless you are reusing one from an earlier result."
+          },
+          "include_png": {
+            "default": false,
+            "description": "Also return a PNG of the initial view that you can see. Adds several seconds. Set it only when you need to inspect the structure or the client can't show the interactive viewer.",
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "entities"
+        ],
+        "type": "object",
+        "additionalProperties": false
+      },
+      "name": "ui_show_structure",
+      "outputSchema": {
+        "properties": {
+          "descriptor": {
+            "anyOf": [
+              {
+                "additionalProperties": false,
+                "description": "Describe the bytes delivered with this result, without promising retrieval.",
+                "properties": {
+                  "filename": {
+                    "pattern": "^[A-Za-z0-9][A-Za-z0-9._-]{0,119}\\.pdb$",
+                    "title": "Filename",
+                    "type": "string"
+                  },
+                  "format": {
+                    "const": "pdb",
+                    "default": "pdb",
+                    "title": "Format",
+                    "type": "string"
+                  },
+                  "size_bytes": {
+                    "maximum": 2097152,
+                    "minimum": 1,
+                    "title": "Size Bytes",
+                    "type": "integer"
+                  },
+                  "sha256": {
+                    "pattern": "^[a-f0-9]{64}$",
+                    "title": "Sha256",
+                    "type": "string"
+                  },
+                  "source": {
+                    "additionalProperties": false,
+                    "description": "Public source metadata without credentials or persistent artifact identity.",
+                    "properties": {
+                      "provider": {
+                        "const": "atlas",
+                        "default": "atlas",
+                        "title": "Provider",
+                        "type": "string"
+                      },
+                      "protein_hash": {
+                        "pattern": "^[a-f0-9]{32}$",
+                        "title": "Protein Hash",
+                        "type": "string"
+                      },
+                      "model": {
+                        "anyOf": [
+                          {
+                            "maxLength": 120,
+                            "minLength": 1,
+                            "type": "string"
+                          },
+                          {
+                            "type": "null"
+                          }
+                        ],
+                        "default": null,
+                        "title": "Model"
+                      },
+                      "kind": {
+                        "enum": [
+                          "catalog",
+                          "prediction"
+                        ],
+                        "title": "Kind",
+                        "type": "string"
+                      },
+                      "folded_on_miss": {
+                        "default": false,
+                        "title": "Folded On Miss",
+                        "type": "boolean"
+                      }
+                    },
+                    "required": [
+                      "protein_hash",
+                      "kind"
+                    ],
+                    "title": "StructureProvenance",
+                    "type": "object"
+                  }
+                },
+                "required": [
+                  "filename",
+                  "size_bytes",
+                  "sha256",
+                  "source"
+                ],
+                "title": "StructureDescriptor",
+                "type": "object"
+              },
+              {
+                "additionalProperties": false,
+                "description": "The response-local PDB file; its SHA-256 is its only identity.",
+                "properties": {
+                  "filename": {
+                    "pattern": "^[A-Za-z0-9][A-Za-z0-9._-]{0,119}\\.pdb$",
+                    "title": "Filename",
+                    "type": "string"
+                  },
+                  "format": {
+                    "const": "pdb",
+                    "default": "pdb",
+                    "title": "Format",
+                    "type": "string"
+                  },
+                  "size_bytes": {
+                    "maximum": 2097152,
+                    "minimum": 1,
+                    "title": "Size Bytes",
+                    "type": "integer"
+                  },
+                  "sha256": {
+                    "pattern": "^[a-f0-9]{64}$",
+                    "title": "Sha256",
+                    "type": "string"
+                  },
+                  "source": {
+                    "additionalProperties": false,
+                    "description": "Where a complex's coordinates came from, kept apart from the Atlas provenance.",
+                    "properties": {
+                      "provider": {
+                        "const": "bhp",
+                        "default": "bhp",
+                        "title": "Provider",
+                        "type": "string"
+                      },
+                      "model": {
+                        "maxLength": 120,
+                        "minLength": 1,
+                        "title": "Model",
+                        "type": "string"
+                      },
+                      "kind": {
+                        "const": "prediction",
+                        "default": "prediction",
+                        "title": "Kind",
+                        "type": "string"
+                      }
+                    },
+                    "required": [
+                      "model"
+                    ],
+                    "title": "ComplexProvenance",
+                    "type": "object"
+                  }
+                },
+                "required": [
+                  "filename",
+                  "size_bytes",
+                  "sha256",
+                  "source"
+                ],
+                "title": "ComplexDescriptor",
+                "type": "object"
+              }
+            ],
+            "title": "Descriptor"
+          },
+          "view_options": {
+            "additionalProperties": false,
+            "description": "Display settings never alter the original saved or downloadable file.",
+            "properties": {
+              "representation": {
+                "default": "cartoon",
+                "enum": [
+                  "surface",
+                  "cartoon"
+                ],
+                "title": "Representation",
+                "type": "string"
+              },
+              "orientation": {
+                "default": "overview",
+                "enum": [
+                  "overview",
+                  "hotspot-facing",
+                  "opposite",
+                  "side"
+                ],
+                "title": "Orientation",
+                "type": "string"
+              },
+              "color_by": {
+                "anyOf": [
+                  {
+                    "enum": [
+                      "chain",
+                      "confidence"
+                    ],
+                    "type": "string"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ],
+                "default": null,
+                "description": "Defaults to confidence when the structure carries confidence scores, otherwise chain.",
+                "title": "Color By"
+              },
+              "highlights": {
+                "items": {
+                  "additionalProperties": false,
+                  "description": "A deposited residue address, independent of a component's flattened index.",
+                  "properties": {
+                    "chain_id": {
+                      "maxLength": 1,
+                      "minLength": 1,
+                      "title": "Chain Id",
+                      "type": "string"
+                    },
+                    "author_residue_number": {
+                      "maximum": 9999,
+                      "minimum": -999,
+                      "title": "Author Residue Number",
+                      "type": "integer"
+                    },
+                    "insertion_code": {
+                      "default": "",
+                      "maxLength": 1,
+                      "title": "Insertion Code",
+                      "type": "string"
+                    },
+                    "expected_residue": {
+                      "anyOf": [
+                        {
+                          "pattern": "^[A-Z]{1,3}$",
+                          "type": "string"
+                        },
+                        {
+                          "type": "null"
+                        }
+                      ],
+                      "default": null,
+                      "title": "Expected Residue"
+                    },
+                    "color": {
+                      "anyOf": [
+                        {
+                          "pattern": "^#[0-9a-fA-F]{6}$",
+                          "type": "string"
+                        },
+                        {
+                          "type": "null"
+                        }
+                      ],
+                      "default": null,
+                      "title": "Color"
+                    }
+                  },
+                  "required": [
+                    "chain_id",
+                    "author_residue_number"
+                  ],
+                  "title": "ResidueHighlight",
+                  "type": "object"
+                },
+                "maxItems": 32,
+                "title": "Highlights",
+                "type": "array"
+              },
+              "visible_chain_ids": {
+                "anyOf": [
+                  {
+                    "items": {
+                      "maxLength": 1,
+                      "minLength": 1,
+                      "type": "string"
+                    },
+                    "maxItems": 128,
+                    "minItems": 1,
+                    "type": "array"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ],
+                "default": null,
+                "title": "Visible Chain Ids"
+              },
+              "camera": {
+                "anyOf": [
+                  {
+                    "additionalProperties": false,
+                    "description": "Mol* camera pose in angstroms with explicit projection and viewport.",
+                    "properties": {
+                      "position": {
+                        "maxItems": 3,
+                        "minItems": 3,
+                        "prefixItems": [
+                          {
+                            "maximum": 1000000.0,
+                            "minimum": -1000000.0,
+                            "type": "number"
+                          },
+                          {
+                            "maximum": 1000000.0,
+                            "minimum": -1000000.0,
+                            "type": "number"
+                          },
+                          {
+                            "maximum": 1000000.0,
+                            "minimum": -1000000.0,
+                            "type": "number"
+                          }
+                        ],
+                        "title": "Position",
+                        "type": "array"
+                      },
+                      "target": {
+                        "maxItems": 3,
+                        "minItems": 3,
+                        "prefixItems": [
+                          {
+                            "maximum": 1000000.0,
+                            "minimum": -1000000.0,
+                            "type": "number"
+                          },
+                          {
+                            "maximum": 1000000.0,
+                            "minimum": -1000000.0,
+                            "type": "number"
+                          },
+                          {
+                            "maximum": 1000000.0,
+                            "minimum": -1000000.0,
+                            "type": "number"
+                          }
+                        ],
+                        "title": "Target",
+                        "type": "array"
+                      },
+                      "up": {
+                        "maxItems": 3,
+                        "minItems": 3,
+                        "prefixItems": [
+                          {
+                            "maximum": 1000000.0,
+                            "minimum": -1000000.0,
+                            "type": "number"
+                          },
+                          {
+                            "maximum": 1000000.0,
+                            "minimum": -1000000.0,
+                            "type": "number"
+                          },
+                          {
+                            "maximum": 1000000.0,
+                            "minimum": -1000000.0,
+                            "type": "number"
+                          }
+                        ],
+                        "title": "Up",
+                        "type": "array"
+                      },
+                      "projection": {
+                        "default": "orthographic",
+                        "enum": [
+                          "perspective",
+                          "orthographic"
+                        ],
+                        "title": "Projection",
+                        "type": "string"
+                      },
+                      "fov": {
+                        "default": 0.7853981633974483,
+                        "exclusiveMaximum": 3.141592653589793,
+                        "exclusiveMinimum": 0.01,
+                        "title": "Fov",
+                        "type": "number"
+                      },
+                      "radius": {
+                        "exclusiveMinimum": 0,
+                        "maximum": 1000000.0,
+                        "title": "Radius",
+                        "type": "number"
+                      },
+                      "radius_max": {
+                        "exclusiveMinimum": 0,
+                        "maximum": 1000000.0,
+                        "title": "Radius Max",
+                        "type": "number"
+                      },
+                      "viewport": {
+                        "additionalProperties": false,
+                        "description": "Source canvas dimensions needed to preserve a camera's aspect ratio.",
+                        "properties": {
+                          "width": {
+                            "default": 1024,
+                            "maximum": 4096,
+                            "minimum": 64,
+                            "title": "Width",
+                            "type": "integer"
+                          },
+                          "height": {
+                            "default": 768,
+                            "maximum": 4096,
+                            "minimum": 64,
+                            "title": "Height",
+                            "type": "integer"
+                          }
+                        },
+                        "title": "Viewport",
+                        "type": "object"
+                      }
+                    },
+                    "required": [
+                      "position",
+                      "target",
+                      "up",
+                      "radius",
+                      "radius_max"
+                    ],
+                    "title": "StructureCamera",
+                    "type": "object"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ],
+                "default": null
+              }
+            },
+            "title": "ViewOptions",
+            "type": "object"
+          },
+          "preview_status": {
+            "enum": [
+              "available",
+              "unavailable",
+              "not_requested"
+            ],
+            "title": "Preview Status",
+            "type": "string"
+          },
+          "preview_failure": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Preview Failure"
+          },
+          "inspection_status": {
+            "enum": [
+              "requires_visual_assessment",
+              "image_unavailable"
+            ],
+            "title": "Inspection Status",
+            "type": "string"
+          },
+          "entities": {
+            "items": {
+              "additionalProperties": false,
+              "properties": {
+                "type": {
+                  "enum": [
+                    "protein",
+                    "dna",
+                    "rna",
+                    "ligand"
+                  ],
+                  "title": "Type",
+                  "type": "string"
+                },
+                "chain_ids": {
+                  "items": {
+                    "type": "string"
+                  },
+                  "title": "Chain Ids",
+                  "type": "array"
+                },
+                "length": {
+                  "anyOf": [
+                    {
+                      "type": "integer"
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ],
+                  "description": "Residues or nucleotides in each chain; null for a ligand.",
+                  "title": "Length"
+                },
+                "ligand": {
+                  "anyOf": [
+                    {
+                      "type": "string"
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ],
+                  "description": "The CCD code, or SMILES for a SMILES ligand; null for a polymer.",
+                  "title": "Ligand"
+                }
+              },
+              "required": [
+                "type",
+                "chain_ids",
+                "length",
+                "ligand"
+              ],
+              "title": "EntitySummary",
+              "type": "object"
+            },
+            "title": "Entities",
+            "type": "array"
+          },
+          "ptm": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Predicted TM-score, 0 to 1.",
+            "title": "Ptm"
+          },
+          "iptm": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Interface predicted TM-score between chains, 0 to 1; null for one chain.",
+            "title": "Iptm"
+          },
+          "warnings": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Warnings",
+            "type": "array"
+          }
+        },
+        "required": [
+          "descriptor",
+          "view_options",
+          "preview_status",
+          "inspection_status",
+          "entities",
+          "ptm",
+          "iptm"
+        ],
+        "type": "object",
+        "additionalProperties": false,
+        "description": "The model-visible summary of a view; its coordinates travel only in _meta.",
+        "title": "ViewerLaunch"
+      },
+      "title": "Show structure"
+    },
+    {
+      "_meta": {
+        "fastmcp": {
+          "tags": [
+            "public"
+          ]
+        }
+      },
+      "annotations": {
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": false,
+        "readOnlyHint": true,
+        "title": "List Biohub MCP resources"
+      },
+      "description": "List the complete enabled Biohub MCP resource and resource-template catalog, including hosted Skills and published metadata. Returns resources with uri and resource_templates with uriTemplate; template URIs need concrete parameter values before reading. Does not read resource contents or start compute. Results exceeding 128 KiB of serialized tool output return resource_too_large without truncation.",
+      "inputSchema": {
+        "properties": {},
+        "type": "object",
+        "additionalProperties": false
+      },
+      "name": "list_resources",
+      "outputSchema": {
+        "properties": {
+          "resources": {
+            "items": {
+              "description": "A known resource that the server is capable of reading.",
+              "properties": {
+                "name": {
+                  "title": "Name",
+                  "type": "string"
+                },
+                "title": {
+                  "anyOf": [
+                    {
+                      "type": "string"
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ],
+                  "default": null,
+                  "title": "Title"
+                },
+                "uri": {
+                  "title": "Uri",
+                  "type": "string"
+                },
+                "description": {
+                  "anyOf": [
+                    {
+                      "type": "string"
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ],
+                  "default": null,
+                  "title": "Description"
+                },
+                "mimeType": {
+                  "anyOf": [
+                    {
+                      "type": "string"
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ],
+                  "default": null,
+                  "title": "Mimetype"
+                },
+                "size": {
+                  "anyOf": [
+                    {
+                      "type": "integer"
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ],
+                  "default": null,
+                  "title": "Size"
+                },
+                "icons": {
+                  "anyOf": [
+                    {
+                      "items": {
+                        "description": "An optionally-sized icon for display in a user interface (2025-11-25+).",
+                        "properties": {
+                          "src": {
+                            "title": "Src",
+                            "type": "string"
+                          },
+                          "mimeType": {
+                            "anyOf": [
+                              {
+                                "type": "string"
+                              },
+                              {
+                                "type": "null"
+                              }
+                            ],
+                            "default": null,
+                            "title": "Mimetype"
+                          },
+                          "sizes": {
+                            "anyOf": [
+                              {
+                                "items": {
+                                  "type": "string"
+                                },
+                                "type": "array"
+                              },
+                              {
+                                "type": "null"
+                              }
+                            ],
+                            "default": null,
+                            "title": "Sizes"
+                          },
+                          "theme": {
+                            "anyOf": [
+                              {
+                                "enum": [
+                                  "light",
+                                  "dark"
+                                ],
+                                "type": "string"
+                              },
+                              {
+                                "type": "null"
+                              }
+                            ],
+                            "default": null,
+                            "title": "Theme"
+                          }
+                        },
+                        "required": [
+                          "src"
+                        ],
+                        "title": "Icon",
+                        "type": "object"
+                      },
+                      "type": "array"
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ],
+                  "default": null,
+                  "title": "Icons"
+                },
+                "annotations": {
+                  "anyOf": [
+                    {
+                      "description": "Optional annotations the client can use to inform how objects are used or displayed.",
+                      "properties": {
+                        "audience": {
+                          "anyOf": [
+                            {
+                              "items": {
+                                "enum": [
+                                  "user",
+                                  "assistant"
+                                ],
+                                "type": "string"
+                              },
+                              "type": "array"
+                            },
+                            {
+                              "type": "null"
+                            }
+                          ],
+                          "default": null,
+                          "title": "Audience"
+                        },
+                        "priority": {
+                          "anyOf": [
+                            {
+                              "maximum": 1.0,
+                              "minimum": 0.0,
+                              "type": "number"
+                            },
+                            {
+                              "type": "null"
+                            }
+                          ],
+                          "default": null,
+                          "title": "Priority"
+                        },
+                        "lastModified": {
+                          "anyOf": [
+                            {
+                              "type": "string"
+                            },
+                            {
+                              "type": "null"
+                            }
+                          ],
+                          "default": null,
+                          "title": "Lastmodified"
+                        }
+                      },
+                      "title": "Annotations",
+                      "type": "object"
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ],
+                  "default": null
+                },
+                "_meta": {
+                  "anyOf": [
+                    {
+                      "additionalProperties": true,
+                      "type": "object"
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ],
+                  "default": null,
+                  "title": "Meta"
+                }
+              },
+              "required": [
+                "name",
+                "uri"
+              ],
+              "title": "Resource",
+              "type": "object"
+            },
+            "title": "Resources",
+            "type": "array"
+          },
+          "resource_templates": {
+            "items": {
+              "description": "A template description for resources available on the server.",
+              "properties": {
+                "name": {
+                  "title": "Name",
+                  "type": "string"
+                },
+                "title": {
+                  "anyOf": [
+                    {
+                      "type": "string"
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ],
+                  "default": null,
+                  "title": "Title"
+                },
+                "uriTemplate": {
+                  "title": "Uritemplate",
+                  "type": "string"
+                },
+                "description": {
+                  "anyOf": [
+                    {
+                      "type": "string"
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ],
+                  "default": null,
+                  "title": "Description"
+                },
+                "mimeType": {
+                  "anyOf": [
+                    {
+                      "type": "string"
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ],
+                  "default": null,
+                  "title": "Mimetype"
+                },
+                "icons": {
+                  "anyOf": [
+                    {
+                      "items": {
+                        "description": "An optionally-sized icon for display in a user interface (2025-11-25+).",
+                        "properties": {
+                          "src": {
+                            "title": "Src",
+                            "type": "string"
+                          },
+                          "mimeType": {
+                            "anyOf": [
+                              {
+                                "type": "string"
+                              },
+                              {
+                                "type": "null"
+                              }
+                            ],
+                            "default": null,
+                            "title": "Mimetype"
+                          },
+                          "sizes": {
+                            "anyOf": [
+                              {
+                                "items": {
+                                  "type": "string"
+                                },
+                                "type": "array"
+                              },
+                              {
+                                "type": "null"
+                              }
+                            ],
+                            "default": null,
+                            "title": "Sizes"
+                          },
+                          "theme": {
+                            "anyOf": [
+                              {
+                                "enum": [
+                                  "light",
+                                  "dark"
+                                ],
+                                "type": "string"
+                              },
+                              {
+                                "type": "null"
+                              }
+                            ],
+                            "default": null,
+                            "title": "Theme"
+                          }
+                        },
+                        "required": [
+                          "src"
+                        ],
+                        "title": "Icon",
+                        "type": "object"
+                      },
+                      "type": "array"
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ],
+                  "default": null,
+                  "title": "Icons"
+                },
+                "annotations": {
+                  "anyOf": [
+                    {
+                      "description": "Optional annotations the client can use to inform how objects are used or displayed.",
+                      "properties": {
+                        "audience": {
+                          "anyOf": [
+                            {
+                              "items": {
+                                "enum": [
+                                  "user",
+                                  "assistant"
+                                ],
+                                "type": "string"
+                              },
+                              "type": "array"
+                            },
+                            {
+                              "type": "null"
+                            }
+                          ],
+                          "default": null,
+                          "title": "Audience"
+                        },
+                        "priority": {
+                          "anyOf": [
+                            {
+                              "maximum": 1.0,
+                              "minimum": 0.0,
+                              "type": "number"
+                            },
+                            {
+                              "type": "null"
+                            }
+                          ],
+                          "default": null,
+                          "title": "Priority"
+                        },
+                        "lastModified": {
+                          "anyOf": [
+                            {
+                              "type": "string"
+                            },
+                            {
+                              "type": "null"
+                            }
+                          ],
+                          "default": null,
+                          "title": "Lastmodified"
+                        }
+                      },
+                      "title": "Annotations",
+                      "type": "object"
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ],
+                  "default": null
+                },
+                "_meta": {
+                  "anyOf": [
+                    {
+                      "additionalProperties": true,
+                      "type": "object"
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ],
+                  "default": null,
+                  "title": "Meta"
+                }
+              },
+              "required": [
+                "name",
+                "uriTemplate"
+              ],
+              "title": "ResourceTemplate",
+              "type": "object"
+            },
+            "title": "Resource Templates",
+            "type": "array"
+          }
+        },
+        "required": [
+          "resources",
+          "resource_templates"
+        ],
+        "type": "object",
+        "additionalProperties": false,
+        "description": "Native MCP resource descriptors, including published provenance metadata.",
+        "title": "ResourceCatalog"
+      },
+      "title": "List Biohub MCP resources"
+    },
+    {
+      "_meta": {
+        "fastmcp": {
+          "tags": [
+            "public"
+          ]
+        }
+      },
+      "annotations": {
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": false,
+        "readOnlyHint": true,
+        "title": "Read Biohub MCP resource"
+      },
+      "description": "Read one enabled Biohub MCP resource by exact URI, including hosted Skill instructions, supporting files, and linked artifacts. Returns MCP contents with text or base64 blob, MIME type, and available metadata. Only registered resources are accessible; this is not a web or local file fetcher. Results exceeding 128 KiB of serialized tool output return resource_too_large without truncation. Skill reads start no compute.",
+      "inputSchema": {
+        "properties": {
+          "uri": {
+            "description": "Exact URI from list_resources, a tool's resource link, or a hosted Skill reference; fill in any template parameters. Example: skill://atlas-protein-function/SKILL.md.",
+            "maxLength": 65536,
+            "minLength": 1,
+            "type": "string"
+          }
+        },
+        "required": [
+          "uri"
+        ],
+        "type": "object",
+        "additionalProperties": false
+      },
+      "name": "read_resource",
+      "outputSchema": {
+        "properties": {
+          "_meta": {
+            "anyOf": [
+              {
+                "additionalProperties": true,
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Meta"
+          },
+          "ttlMs": {
+            "default": 0,
+            "minimum": 0,
+            "title": "Ttlms",
+            "type": "integer"
+          },
+          "cacheScope": {
+            "default": "private",
+            "enum": [
+              "public",
+              "private"
+            ],
+            "title": "Cachescope",
+            "type": "string"
+          },
+          "contents": {
+            "items": {
+              "anyOf": [
+                {
+                  "description": "Text contents of a resource.",
+                  "properties": {
+                    "uri": {
+                      "title": "Uri",
+                      "type": "string"
+                    },
+                    "mimeType": {
+                      "anyOf": [
+                        {
+                          "type": "string"
+                        },
+                        {
+                          "type": "null"
+                        }
+                      ],
+                      "default": null,
+                      "title": "Mimetype"
+                    },
+                    "_meta": {
+                      "anyOf": [
+                        {
+                          "additionalProperties": true,
+                          "type": "object"
+                        },
+                        {
+                          "type": "null"
+                        }
+                      ],
+                      "default": null,
+                      "title": "Meta"
+                    },
+                    "text": {
+                      "title": "Text",
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "uri",
+                    "text"
+                  ],
+                  "title": "TextResourceContents",
+                  "type": "object"
+                },
+                {
+                  "description": "Binary contents of a resource.",
+                  "properties": {
+                    "uri": {
+                      "title": "Uri",
+                      "type": "string"
+                    },
+                    "mimeType": {
+                      "anyOf": [
+                        {
+                          "type": "string"
+                        },
+                        {
+                          "type": "null"
+                        }
+                      ],
+                      "default": null,
+                      "title": "Mimetype"
+                    },
+                    "_meta": {
+                      "anyOf": [
+                        {
+                          "additionalProperties": true,
+                          "type": "object"
+                        },
+                        {
+                          "type": "null"
+                        }
+                      ],
+                      "default": null,
+                      "title": "Meta"
+                    },
+                    "blob": {
+                      "title": "Blob",
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "uri",
+                    "blob"
+                  ],
+                  "title": "BlobResourceContents",
+                  "type": "object"
+                }
+              ]
+            },
+            "title": "Contents",
+            "type": "array"
+          },
+          "resultType": {
+            "anyOf": [
+              {
+                "enum": [
+                  "complete",
+                  "input_required"
+                ],
+                "type": "string"
+              },
+              {
+                "type": "string"
+              }
+            ],
+            "default": "complete",
+            "title": "Resulttype"
+          }
+        },
+        "required": [
+          "contents"
+        ],
+        "type": "object",
+        "description": "The server's response to a resources/read request from the client.",
+        "title": "ReadResourceResult"
+      },
+      "title": "Read Biohub MCP resource"
+    },
+    {
+      "_meta": {
+        "fastmcp": {
+          "tags": [
+            "esm_atlas",
+            "public"
+          ]
+        }
+      },
+      "annotations": {
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": false,
+        "readOnlyHint": true,
+        "title": "Get protein details"
+      },
+      "description": "Look up what the ESM Atlas knows about one protein sequence: its source accession, the confidence of its predicted structure (pTM and mean pLDDT), whether a structure exists or can be predicted (up to 700 residues), and its strongest ESMC sparse-autoencoder (SAE) features, which are learned, labeled protein properties, with the residue ranges that drive them. Use it first for a sequence you already have. Takes a raw one-letter sequence; resolve a protein name or accession with esm_atlas_search_uniprot or esm_atlas_lookup_accession. Sequences not in the ESM Atlas get features computed for up to 2,048 residues. This tool never predicts a structure; ui_show_structure with the same sequence shows one. No saved ID or download is created.",
+      "inputSchema": {
+        "properties": {
+          "sequence": {
+            "description": "Raw amino-acid sequence in one-letter codes, not a name or accession. Case and leading or trailing whitespace are ignored.",
+            "maxLength": 4000,
+            "minLength": 1,
+            "type": "string"
+          }
+        },
+        "required": [
+          "sequence"
+        ],
+        "type": "object",
+        "additionalProperties": false
+      },
+      "name": "esm_atlas_get_protein_details",
+      "outputSchema": {
+        "properties": {
+          "sequence": {
+            "type": "string"
+          },
+          "sequence_length": {
+            "type": "integer"
+          },
+          "accession": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "header": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "source": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "sae_features": {
+            "items": {
+              "additionalProperties": false,
+              "properties": {
+                "feature_index": {
+                  "type": "integer"
+                },
+                "label": {
+                  "type": "string"
+                },
+                "description": {
+                  "type": "string"
+                },
+                "value": {
+                  "type": "number"
+                },
+                "label_reliability": {
+                  "enum": [
+                    "high",
+                    "moderate",
+                    "low"
+                  ],
+                  "type": "string"
+                },
+                "residue_regions": {
+                  "items": {
+                    "additionalProperties": false,
+                    "properties": {
+                      "start": {
+                        "type": "integer"
+                      },
+                      "end": {
+                        "type": "integer"
+                      },
+                      "peak_residue": {
+                        "type": "integer"
+                      },
+                      "mean_activation": {
+                        "type": "number"
+                      }
+                    },
+                    "required": [
+                      "start",
+                      "end",
+                      "peak_residue",
+                      "mean_activation"
+                    ],
+                    "type": "object"
+                  },
+                  "type": "array"
+                }
+              },
+              "required": [
+                "feature_index",
+                "label",
+                "description",
+                "value",
+                "label_reliability"
+              ],
+              "type": "object"
+            },
+            "type": "array"
+          },
+          "ptm": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "mean_plddt": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "structure_available": {
+            "default": false,
+            "type": "boolean"
+          },
+          "structure_can_be_computed": {
+            "default": false,
+            "type": "boolean"
+          },
+          "features_computed_on_miss": {
+            "default": false,
+            "type": "boolean"
+          },
+          "structure_source": {
+            "anyOf": [
+              {
+                "enum": [
+                  "atlas",
+                  "model"
+                ],
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "structure_model": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "structure_size_bytes": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "residue_confidence_count": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "folded_on_miss": {
+            "default": false,
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "sequence",
+          "sequence_length"
+        ],
+        "type": "object",
+        "additionalProperties": false
+      },
+      "title": "Get protein details"
+    },
+    {
+      "_meta": {
+        "fastmcp": {
+          "tags": [
+            "esm_atlas",
+            "public"
+          ]
+        }
+      },
+      "annotations": {
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": false,
+        "readOnlyHint": true,
+        "title": "Find similar protein clusters"
+      },
+      "description": "Find ESM Atlas protein clusters whose representatives are most similar to a sequence, compared by ESMC sparse-autoencoder (SAE) feature profiles rather than by sequence alignment. Use it to find functional or structural neighbors of a protein. Takes a raw one-letter sequence up to 2,048 residues. Returns up to top_k representatives above a minimum similarity, so fewer may come back, each with a similarity score, cluster size, name, and a sequence to pass to the other ESM Atlas tools, plus the features most shared across hits. restricted_count is the number of hits withheld by safety screening. Hits without a stored structure may be predicted during the search, which can add time.",
+      "inputSchema": {
+        "properties": {
+          "sequence": {
+            "description": "Raw amino-acid sequence in one-letter codes, not a name or accession. Case and leading or trailing whitespace are ignored.",
+            "maxLength": 2048,
+            "minLength": 1,
+            "type": "string"
+          },
+          "top_k": {
+            "default": 10,
+            "description": "Maximum number of cluster representatives to return, 1 to 12.",
+            "maximum": 12,
+            "minimum": 1,
+            "type": "integer"
+          },
+          "uncharacterized_only": {
+            "default": false,
+            "description": "Return only clusters with no characterized Pfam annotations.",
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "sequence"
+        ],
+        "type": "object",
+        "additionalProperties": false
+      },
+      "name": "esm_atlas_search_similar_protein_clusters",
+      "outputSchema": {
+        "properties": {
+          "query_sequence_length": {
+            "type": "integer"
+          },
+          "hits": {
+            "items": {
+              "additionalProperties": false,
+              "properties": {
+                "protein_accession": {
+                  "type": "string"
+                },
+                "sequence": {
+                  "type": "string"
+                },
+                "sequence_length": {
+                  "type": "integer"
+                },
+                "similarity_score": {
+                  "type": "number"
+                },
+                "cluster_size": {
+                  "anyOf": [
+                    {
+                      "type": "integer"
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ],
+                  "default": null
+                },
+                "protein_name": {
+                  "anyOf": [
+                    {
+                      "type": "string"
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ],
+                  "default": null
+                }
+              },
+              "required": [
+                "protein_accession",
+                "sequence",
+                "sequence_length",
+                "similarity_score"
+              ],
+              "type": "object"
+            },
+            "type": "array"
+          },
+          "top_features_across_results": {
+            "items": {
+              "additionalProperties": false,
+              "properties": {
+                "feature_index": {
+                  "type": "integer"
+                },
+                "occurrence_count": {
+                  "type": "integer"
+                },
+                "mean_activation": {
+                  "type": "number"
+                }
+              },
+              "required": [
+                "feature_index",
+                "occurrence_count",
+                "mean_activation"
+              ],
+              "type": "object"
+            },
+            "type": "array"
+          },
+          "restricted_count": {
+            "default": 0,
+            "type": "integer"
+          }
+        },
+        "required": [
+          "query_sequence_length"
+        ],
+        "type": "object",
+        "additionalProperties": false
+      },
+      "title": "Find similar protein clusters"
+    },
+    {
+      "_meta": {
+        "fastmcp": {
+          "tags": [
+            "esm_atlas",
+            "public"
+          ]
+        }
+      },
+      "annotations": {
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": false,
+        "readOnlyHint": true,
+        "title": "Get protein cluster details"
+      },
+      "description": "Get the ESM Atlas cluster a protein belongs to: cluster size, the share of members with characterized Pfam annotations, top Pfam domains, taxonomy and top phyla, and the SAE features typical of the cluster. ESM Atlas clusters group proteins by ESMC sparse-autoencoder (SAE) feature similarity, not by sequence identity. Use it to put a protein in context or judge how well studied its neighborhood is. Takes the raw one-letter sequence of a protein already in the ESM Atlas, such as a hit from esm_atlas_search_similar_protein_clusters; other sequences return not_found, because this tool computes nothing.",
+      "inputSchema": {
+        "properties": {
+          "sequence": {
+            "description": "Raw amino-acid sequence of a protein already in the ESM Atlas, in one-letter codes. Case and leading or trailing whitespace are ignored.",
+            "maxLength": 4000,
+            "minLength": 1,
+            "type": "string"
+          }
+        },
+        "required": [
+          "sequence"
+        ],
+        "type": "object",
+        "additionalProperties": false
+      },
+      "name": "esm_atlas_get_cluster_info",
+      "outputSchema": {
+        "properties": {
+          "accession": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "source": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "protein_name": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "cluster_size": {
+            "type": "integer"
+          },
+          "cluster_pct_characterized": {
+            "type": "integer"
+          },
+          "cluster_mean_domain_coverage": {
+            "type": "number"
+          },
+          "top_pfam_domains": {
+            "anyOf": [
+              {
+                "additionalProperties": {
+                  "additionalProperties": false,
+                  "properties": {
+                    "count": {
+                      "type": "integer"
+                    },
+                    "name": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "count",
+                    "name"
+                  ],
+                  "type": "object"
+                },
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "representative_features": {
+            "items": {
+              "additionalProperties": false,
+              "properties": {
+                "feature_index": {
+                  "type": "integer"
+                },
+                "label": {
+                  "type": "string"
+                },
+                "description": {
+                  "type": "string"
+                },
+                "value": {
+                  "type": "number"
+                }
+              },
+              "required": [
+                "feature_index",
+                "label",
+                "description",
+                "value"
+              ],
+              "type": "object"
+            },
+            "type": "array"
+          },
+          "taxonomy_info": {
+            "anyOf": [
+              {
+                "additionalProperties": false,
+                "properties": {
+                  "rank": {
+                    "type": "string"
+                  },
+                  "name": {
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "rank",
+                  "name"
+                ],
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "top_phyla": {
+            "anyOf": [
+              {
+                "additionalProperties": {
+                  "type": "integer"
+                },
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          }
+        },
+        "required": [
+          "cluster_size",
+          "cluster_pct_characterized",
+          "cluster_mean_domain_coverage"
+        ],
+        "type": "object",
+        "additionalProperties": false
+      },
+      "title": "Get protein cluster details"
+    },
+    {
+      "_meta": {
+        "fastmcp": {
+          "tags": [
+            "esm_atlas",
+            "public"
+          ]
+        }
+      },
+      "annotations": {
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": false,
+        "readOnlyHint": true,
+        "title": "Get ESM Atlas feature details"
+      },
+      "description": "Explain one ESMC sparse-autoencoder (SAE) feature by its index: its label, summary and description, category, activation pattern, example protein families, how often it occurs in UniRef90, the reviewed UniProt (Swiss-Prot) proteins that activate it most, and the most similar features. Use it when another ESM Atlas tool returns a feature_index worth understanding. It takes an index, not a sequence.",
+      "inputSchema": {
+        "properties": {
+          "feature_index": {
+            "description": "SAE feature index from 0 to 16,383, as returned by other ESM Atlas tools.",
+            "exclusiveMaximum": 16384,
+            "minimum": 0,
+            "type": "integer"
+          }
+        },
+        "required": [
+          "feature_index"
+        ],
+        "type": "object",
+        "additionalProperties": false
+      },
+      "name": "esm_atlas_get_sae_feature_detail",
+      "outputSchema": {
+        "properties": {
+          "feature_index": {
+            "type": "integer"
+          },
+          "label": {
+            "type": "string"
+          },
+          "summary": {
+            "type": "string"
+          },
+          "description": {
+            "type": "string"
+          },
+          "category": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "activation_pattern": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "exemplar_protein_families": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "uniref90_frequency": {
+            "type": "integer"
+          },
+          "top_swissprot_activations": {
+            "items": {
+              "additionalProperties": false,
+              "properties": {
+                "uniprot_id": {
+                  "type": "string"
+                },
+                "activation": {
+                  "type": "number"
+                }
+              },
+              "required": [
+                "uniprot_id",
+                "activation"
+              ],
+              "type": "object"
+            },
+            "type": "array"
+          },
+          "decoder_nearest_neighbors": {
+            "items": {
+              "type": "integer"
+            },
+            "type": "array"
+          }
+        },
+        "required": [
+          "feature_index",
+          "label",
+          "summary",
+          "description",
+          "uniref90_frequency"
+        ],
+        "type": "object",
+        "additionalProperties": false
+      },
+      "title": "Get ESM Atlas feature details"
+    },
+    {
+      "_meta": {
+        "fastmcp": {
+          "tags": [
+            "esm_atlas",
+            "public"
+          ]
+        }
+      },
+      "annotations": {
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true,
+        "readOnlyHint": true,
+        "title": "Search UniProt proteins"
+      },
+      "description": "Find proteins in UniProt by name, gene, organism, function, or accession, and get their sequences for the ESM Atlas tools. Use it when a protein is named rather than given as a sequence. Accepts free text, such as \"human hemoglobin alpha\", or UniProt query syntax, such as \"gene:TP53 AND organism_id:9606 AND reviewed:true\"; a UniProt accession (P69905) or entry name (HBA_HUMAN) is looked up directly. Returns up to size entries with accession, name, gene, organism, function, and sequence, plus the total number of matches. For UniParc or MGnify IDs, use esm_atlas_lookup_accession.",
+      "inputSchema": {
+        "properties": {
+          "query": {
+            "description": "Free text or UniProt query syntax, up to 500 characters.",
+            "maxLength": 500,
+            "minLength": 1,
+            "type": "string"
+          },
+          "size": {
+            "default": 6,
+            "description": "Maximum number of entries to return, 1 to 6.",
+            "maximum": 6,
+            "minimum": 1,
+            "type": "integer"
+          }
+        },
+        "required": [
+          "query"
+        ],
+        "type": "object",
+        "additionalProperties": false
+      },
+      "name": "esm_atlas_search_uniprot",
+      "outputSchema": {
+        "properties": {
+          "query_label": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "proteins": {
+            "items": {
+              "additionalProperties": false,
+              "properties": {
+                "accession": {
+                  "anyOf": [
+                    {
+                      "type": "string"
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ],
+                  "default": null
+                },
+                "protein_name": {
+                  "anyOf": [
+                    {
+                      "type": "string"
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ],
+                  "default": null
+                },
+                "gene": {
+                  "anyOf": [
+                    {
+                      "type": "string"
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ],
+                  "default": null
+                },
+                "organism": {
+                  "anyOf": [
+                    {
+                      "type": "string"
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ],
+                  "default": null
+                },
+                "function": {
+                  "default": "",
+                  "type": "string"
+                },
+                "sequence": {
+                  "anyOf": [
+                    {
+                      "type": "string"
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ],
+                  "default": null
+                },
+                "sequence_length": {
+                  "anyOf": [
+                    {
+                      "type": "integer"
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ],
+                  "default": null
+                }
+              },
+              "type": "object"
+            },
+            "type": "array"
+          },
+          "num_results": {
+            "type": "integer"
+          },
+          "total_results": {
+            "default": 0,
+            "type": "integer"
+          }
+        },
+        "required": [
+          "num_results"
+        ],
+        "type": "object",
+        "additionalProperties": false
+      },
+      "title": "Search UniProt proteins"
+    },
+    {
+      "_meta": {
+        "fastmcp": {
+          "tags": [
+            "esm_atlas",
+            "public"
+          ]
+        }
+      },
+      "annotations": {
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true,
+        "readOnlyHint": true,
+        "title": "Resolve a protein accession"
+      },
+      "description": "Get the amino-acid sequence for a UniParc (UPI...) or MGnify (MGYP...) ID, to pass to the ESM Atlas tools. Use it when a protein is identified by one of those IDs. UniProt accessions and entry names are not accepted here; esm_atlas_search_uniprot looks them up. Other formats return invalid_input.",
+      "inputSchema": {
+        "properties": {
+          "accession": {
+            "description": "UniParc or MGnify accession.",
+            "maxLength": 128,
+            "minLength": 1,
+            "type": "string"
+          }
+        },
+        "required": [
+          "accession"
+        ],
+        "type": "object",
+        "additionalProperties": false
+      },
+      "name": "esm_atlas_lookup_accession",
+      "outputSchema": {
+        "properties": {
+          "accession": {
+            "type": "string"
+          },
+          "database": {
+            "enum": [
+              "uniparc",
+              "mgnify"
+            ],
+            "type": "string"
+          },
+          "sequence": {
+            "type": "string"
+          },
+          "sequence_length": {
+            "type": "integer"
+          }
+        },
+        "required": [
+          "accession",
+          "database",
+          "sequence",
+          "sequence_length"
+        ],
+        "type": "object",
+        "additionalProperties": false
+      },
+      "title": "Resolve a protein accession"
+    },
+    {
+      "_meta": {
+        "fastmcp": {
+          "tags": [
+            "esmfold2"
+          ]
+        }
+      },
+      "annotations": {
+        "destructiveHint": false,
+        "idempotentHint": false,
+        "openWorldHint": false,
+        "readOnlyHint": false,
+        "title": "Fold proteins or a complex with ESMFold2"
+      },
+      "description": "Predict structure confidence with ESMFold2 for one protein, several protein chains (an antibody, a homodimer, a binder and its target), or proteins with DNA, RNA or ligands. It returns scores on a 0-to-1 scale: pTM, a pLDDT summary, interface pTM for the whole complex, and ipTM per chain pair when returned. Protein folds can also return mean pLDDT per chain; a warning says when it is unavailable. A high pTM with a low interface pTM means each part is confident alone but the contact is not. These are predictions, not measured binding. It never returns a structure or coordinates. For free, esm_atlas_get_protein_details gives the ESM Atlas pTM and mean pLDDT of a protein already in the Atlas, and ui_show_structure shows one protein chain with a single protein entity, predicting it if needed for up to 700 residues. Inputs of up to 768 tokens fold within the call and return done. Longer inputs, up to 4,096, or use_batch_api=true, return queued with a run_id at one fifth of the price, readable with biohub_get_inference_run for 31 days. It takes no alignment; esmfold2_fold_max_accuracy builds one. It bills the signed-in user's Biohub account, growing with the square of the length: about 0.45 credits for 300 residues within the call and 4 for 2,000 as a run. Each call starts new work and can bill again; an indeterminate failure may already have been billed.",
+      "inputSchema": {
+        "properties": {
+          "entities": {
+            "description": "1-16 entities in order, named A, B, C. Each is {type, sequence} for protein, dna or rna, or {type: 'ligand', smiles} or {type: 'ligand', ccd}. Up to 4,096 tokens: one per residue or nucleotide, one per ligand heavy atom. An input Biohub routes at 768 tokens or fewer but the worker counts above that limit is refused before anything is submitted.",
+            "items": {
+              "additionalProperties": false,
+              "description": "One complex entity as the caller gives it; the tool checks the combination.",
+              "properties": {
+                "type": {
+                  "description": "protein, dna, rna or ligand. Required, because A, C, G and T are amino-acid letters too.",
+                  "enum": [
+                    "protein",
+                    "dna",
+                    "rna",
+                    "ligand"
+                  ],
+                  "type": "string"
+                },
+                "sequence": {
+                  "anyOf": [
+                    {
+                      "maxLength": 8192,
+                      "minLength": 1,
+                      "type": "string"
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ],
+                  "default": null,
+                  "description": "For protein, dna or rna: one-letter codes; whitespace is ignored."
+                },
+                "smiles": {
+                  "anyOf": [
+                    {
+                      "maxLength": 2000,
+                      "minLength": 1,
+                      "type": "string"
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ],
+                  "default": null,
+                  "description": "For a ligand: one SMILES string, such as CC(=O)OC1=CC=CC=C1C(=O)O for aspirin; a ligand takes exactly one of smiles or ccd."
+                },
+                "ccd": {
+                  "anyOf": [
+                    {
+                      "maxLength": 16,
+                      "minLength": 1,
+                      "type": "string"
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ],
+                  "default": null,
+                  "description": "For a ligand: one Chemical Component Dictionary code, such as ATP."
+                }
+              },
+              "required": [
+                "type"
+              ],
+              "type": "object"
+            },
+            "maxItems": 16,
+            "minItems": 1,
+            "type": "array"
+          },
+          "model_id": {
+            "default": "esmfold2-fast-2026-05",
+            "description": "esmfold2-fast-2026-05, the default, is the smaller model built for speed; esmfold2-2026-05 is the larger flagship model. Both cost the same.",
+            "enum": [
+              "esmfold2-fast-2026-05",
+              "esmfold2-2026-05"
+            ],
+            "type": "string"
+          },
+          "use_batch_api": {
+            "default": false,
+            "description": "true queues a run at one fifth of the price instead of folding within the call, and its scores come later from biohub_get_inference_run. Inputs over 768 tokens always queue.",
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "entities"
+        ],
+        "type": "object",
+        "additionalProperties": false
+      },
+      "name": "esmfold2_fold_complex",
+      "outputSchema": {
+        "properties": {
+          "execution_status": {
+            "enum": [
+              "done",
+              "queued"
+            ],
+            "title": "Execution Status",
+            "type": "string"
+          },
+          "run_id": {
+            "anyOf": [
+              {
+                "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}-[0-9]{5}$",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Run Id"
+          },
+          "model_id": {
+            "anyOf": [
+              {
+                "enum": [
+                  "esmfold2-fast-2026-05",
+                  "esmfold2-2026-05"
+                ],
+                "type": "string"
+              },
+              {
+                "const": "esmfold2-2026-05-cutoff-2025",
+                "type": "string"
+              }
+            ],
+            "description": "The model this call asked Biohub to fold with.",
+            "title": "Model Id"
+          },
+          "chains": {
+            "items": {
+              "additionalProperties": false,
+              "properties": {
+                "id": {
+                  "pattern": "^[A-P]$",
+                  "title": "Id",
+                  "type": "string"
+                },
+                "type": {
+                  "enum": [
+                    "protein",
+                    "dna",
+                    "rna",
+                    "ligand"
+                  ],
+                  "title": "Type",
+                  "type": "string"
+                },
+                "length": {
+                  "description": "Residues, nucleotides or ligand heavy atoms.",
+                  "minimum": 1,
+                  "title": "Length",
+                  "type": "integer"
+                }
+              },
+              "required": [
+                "id",
+                "type",
+                "length"
+              ],
+              "title": "ChainInfo",
+              "type": "object"
+            },
+            "maxItems": 16,
+            "minItems": 1,
+            "title": "Chains",
+            "type": "array"
+          },
+          "cost": {
+            "additionalProperties": false,
+            "properties": {
+              "credits": {
+                "minimum": 0,
+                "title": "Credits",
+                "type": "number"
+              },
+              "basis": {
+                "description": "exact, or upper_bound when Biohub may count a ligand as fewer tokens, so the charge can only be lower.",
+                "enum": [
+                  "exact",
+                  "upper_bound"
+                ],
+                "title": "Basis",
+                "type": "string"
+              }
+            },
+            "required": [
+              "credits",
+              "basis"
+            ],
+            "title": "FoldCost",
+            "type": "object"
+          },
+          "summary": {
+            "anyOf": [
+              {
+                "additionalProperties": false,
+                "description": "Confidence scores from 0 to 1, not the 0-to-100 scale some tools use.\n\nPer-chain pLDDT in chains comes only from the protein fold endpoint.\nPair ipTM also covers all-atom and max-accuracy complexes, including ligands, when\nthe result supplies it.",
+                "properties": {
+                  "chains": {
+                    "anyOf": [
+                      {
+                        "items": {
+                          "additionalProperties": false,
+                          "properties": {
+                            "id": {
+                              "pattern": "^[A-P]$",
+                              "title": "Id",
+                              "type": "string"
+                            },
+                            "type": {
+                              "enum": [
+                                "protein",
+                                "dna",
+                                "rna",
+                                "ligand"
+                              ],
+                              "title": "Type",
+                              "type": "string"
+                            },
+                            "length": {
+                              "description": "Residues, nucleotides or ligand heavy atoms.",
+                              "minimum": 1,
+                              "title": "Length",
+                              "type": "integer"
+                            },
+                            "mean_plddt": {
+                              "anyOf": [
+                                {
+                                  "maximum": 1,
+                                  "minimum": 0,
+                                  "type": "number"
+                                },
+                                {
+                                  "type": "null"
+                                }
+                              ],
+                              "default": null,
+                              "description": "Mean pLDDT over this chain's residues.",
+                              "title": "Mean Plddt"
+                            }
+                          },
+                          "required": [
+                            "id",
+                            "type",
+                            "length"
+                          ],
+                          "title": "ChainScore",
+                          "type": "object"
+                        },
+                        "maxItems": 16,
+                        "type": "array"
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ],
+                    "default": null,
+                    "title": "Chains"
+                  },
+                  "ptm": {
+                    "anyOf": [
+                      {
+                        "maximum": 1,
+                        "minimum": 0,
+                        "type": "number"
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ],
+                    "default": null,
+                    "description": "pTM, the predicted TM-score: confidence in the overall fold.",
+                    "title": "Ptm"
+                  },
+                  "interface_ptm": {
+                    "anyOf": [
+                      {
+                        "maximum": 1,
+                        "minimum": 0,
+                        "type": "number"
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ],
+                    "default": null,
+                    "description": "Interface pTM: confidence in how the chains of the whole complex sit against each other.",
+                    "title": "Interface Ptm"
+                  },
+                  "pair_chains_iptm": {
+                    "anyOf": [
+                      {
+                        "items": {
+                          "additionalProperties": false,
+                          "properties": {
+                            "chain_a": {
+                              "maxLength": 128,
+                              "minLength": 1,
+                              "title": "Chain A",
+                              "type": "string"
+                            },
+                            "chain_b": {
+                              "maxLength": 128,
+                              "minLength": 1,
+                              "title": "Chain B",
+                              "type": "string"
+                            },
+                            "iptm": {
+                              "description": "The larger of the model's two ipTM values for this pair.",
+                              "maximum": 1,
+                              "minimum": 0,
+                              "title": "Iptm",
+                              "type": "number"
+                            }
+                          },
+                          "required": [
+                            "chain_a",
+                            "chain_b",
+                            "iptm"
+                          ],
+                          "title": "PairIptm",
+                          "type": "object"
+                        },
+                        "maxItems": 120,
+                        "type": "array"
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ],
+                    "default": null,
+                    "description": "ipTM per chain pair: confidence in that one pair's interface.",
+                    "title": "Pair Chains Iptm"
+                  },
+                  "plddt_summary": {
+                    "anyOf": [
+                      {
+                        "additionalProperties": false,
+                        "properties": {
+                          "mean": {
+                            "maximum": 1,
+                            "minimum": 0,
+                            "title": "Mean",
+                            "type": "number"
+                          },
+                          "minimum": {
+                            "maximum": 1,
+                            "minimum": 0,
+                            "title": "Minimum",
+                            "type": "number"
+                          },
+                          "maximum": {
+                            "maximum": 1,
+                            "minimum": 0,
+                            "title": "Maximum",
+                            "type": "number"
+                          }
+                        },
+                        "required": [
+                          "mean",
+                          "minimum",
+                          "maximum"
+                        ],
+                        "title": "PlddtSummary",
+                        "type": "object"
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ],
+                    "default": null,
+                    "description": "pLDDT, the confidence in local structure at each residue, nucleotide or ligand heavy atom, as its mean, minimum and maximum over all of them."
+                  }
+                },
+                "title": "FoldScores",
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "warnings": {
+            "items": {
+              "maxLength": 512,
+              "type": "string"
+            },
+            "maxItems": 8,
+            "title": "Warnings",
+            "type": "array"
+          }
+        },
+        "required": [
+          "execution_status",
+          "model_id",
+          "chains",
+          "cost"
+        ],
+        "type": "object",
+        "additionalProperties": false,
+        "description": "A fold either scored within the call or queued as a run that is read later.\n\nA done fold has its scores and the exact cost Biohub billed, and no run to read; a\nqueued fold has the run ID to read it with and the cost of the run once it finishes.",
+        "title": "FoldResult"
+      },
+      "title": "Fold proteins or a complex with ESMFold2"
+    },
+    {
+      "_meta": {
+        "fastmcp": {
+          "tags": [
+            "esmfold2"
+          ]
+        }
+      },
+      "annotations": {
+        "destructiveHint": false,
+        "idempotentHint": false,
+        "openWorldHint": false,
+        "readOnlyHint": false,
+        "title": "Fold at maximum accuracy with ESMFold2"
+      },
+      "description": "Predict structure confidence at Biohub's highest accuracy, slower and costlier than esmfold2_fold_complex, for the same entities. Biohub builds its own alignment from UniRef30 and ColabFold, and the tool cannot take one; it folds five times with different seeds and keeps the most confident. It always returns queued with a run_id, readable with biohub_get_inference_run for 31 days; a run takes minutes to hours. Its scores, on a 0-to-1 scale, are pTM, a pLDDT summary, interface pTM and ipTM per chain pair when returned. It does not return per-chain pLDDT. It never returns a structure or coordinates. It bills the signed-in user's Biohub account when the run finishes, with no batch discount: about 0.28 credits for 56 residues, 1.6 for 300, 4.4 for 768, 14 for 2,000 and 37 for 4,096. By default the signed-in user's Biohub account can start 10 of these runs a day, and a run that fails is not charged but still counts. Each call starts new work and can bill again; an indeterminate failure may already have been billed.",
+      "inputSchema": {
+        "properties": {
+          "entities": {
+            "description": "1-16 entities in order, named A, B, C. Each is {type, sequence} for protein, dna or rna, or {type: 'ligand', smiles} or {type: 'ligand', ccd}. Up to 4,096 tokens: one per residue or nucleotide, one per ligand heavy atom. An input Biohub routes at 768 tokens or fewer but the worker counts above that limit is refused before anything is submitted.",
+            "items": {
+              "additionalProperties": false,
+              "description": "One complex entity as the caller gives it; the tool checks the combination.",
+              "properties": {
+                "type": {
+                  "description": "protein, dna, rna or ligand. Required, because A, C, G and T are amino-acid letters too.",
+                  "enum": [
+                    "protein",
+                    "dna",
+                    "rna",
+                    "ligand"
+                  ],
+                  "type": "string"
+                },
+                "sequence": {
+                  "anyOf": [
+                    {
+                      "maxLength": 8192,
+                      "minLength": 1,
+                      "type": "string"
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ],
+                  "default": null,
+                  "description": "For protein, dna or rna: one-letter codes; whitespace is ignored."
+                },
+                "smiles": {
+                  "anyOf": [
+                    {
+                      "maxLength": 2000,
+                      "minLength": 1,
+                      "type": "string"
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ],
+                  "default": null,
+                  "description": "For a ligand: one SMILES string, such as CC(=O)OC1=CC=CC=C1C(=O)O for aspirin; a ligand takes exactly one of smiles or ccd."
+                },
+                "ccd": {
+                  "anyOf": [
+                    {
+                      "maxLength": 16,
+                      "minLength": 1,
+                      "type": "string"
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ],
+                  "default": null,
+                  "description": "For a ligand: one Chemical Component Dictionary code, such as ATP."
+                }
+              },
+              "required": [
+                "type"
+              ],
+              "type": "object"
+            },
+            "maxItems": 16,
+            "minItems": 1,
+            "type": "array"
+          }
+        },
+        "required": [
+          "entities"
+        ],
+        "type": "object",
+        "additionalProperties": false
+      },
+      "name": "esmfold2_fold_max_accuracy",
+      "outputSchema": {
+        "properties": {
+          "execution_status": {
+            "enum": [
+              "done",
+              "queued"
+            ],
+            "title": "Execution Status",
+            "type": "string"
+          },
+          "run_id": {
+            "anyOf": [
+              {
+                "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}-[0-9]{5}$",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Run Id"
+          },
+          "model_id": {
+            "anyOf": [
+              {
+                "enum": [
+                  "esmfold2-fast-2026-05",
+                  "esmfold2-2026-05"
+                ],
+                "type": "string"
+              },
+              {
+                "const": "esmfold2-2026-05-cutoff-2025",
+                "type": "string"
+              }
+            ],
+            "description": "The model this call asked Biohub to fold with.",
+            "title": "Model Id"
+          },
+          "chains": {
+            "items": {
+              "additionalProperties": false,
+              "properties": {
+                "id": {
+                  "pattern": "^[A-P]$",
+                  "title": "Id",
+                  "type": "string"
+                },
+                "type": {
+                  "enum": [
+                    "protein",
+                    "dna",
+                    "rna",
+                    "ligand"
+                  ],
+                  "title": "Type",
+                  "type": "string"
+                },
+                "length": {
+                  "description": "Residues, nucleotides or ligand heavy atoms.",
+                  "minimum": 1,
+                  "title": "Length",
+                  "type": "integer"
+                }
+              },
+              "required": [
+                "id",
+                "type",
+                "length"
+              ],
+              "title": "ChainInfo",
+              "type": "object"
+            },
+            "maxItems": 16,
+            "minItems": 1,
+            "title": "Chains",
+            "type": "array"
+          },
+          "cost": {
+            "additionalProperties": false,
+            "properties": {
+              "credits": {
+                "minimum": 0,
+                "title": "Credits",
+                "type": "number"
+              },
+              "basis": {
+                "description": "exact, or upper_bound when Biohub may count a ligand as fewer tokens, so the charge can only be lower.",
+                "enum": [
+                  "exact",
+                  "upper_bound"
+                ],
+                "title": "Basis",
+                "type": "string"
+              }
+            },
+            "required": [
+              "credits",
+              "basis"
+            ],
+            "title": "FoldCost",
+            "type": "object"
+          },
+          "summary": {
+            "anyOf": [
+              {
+                "additionalProperties": false,
+                "description": "Confidence scores from 0 to 1, not the 0-to-100 scale some tools use.\n\nPer-chain pLDDT in chains comes only from the protein fold endpoint.\nPair ipTM also covers all-atom and max-accuracy complexes, including ligands, when\nthe result supplies it.",
+                "properties": {
+                  "chains": {
+                    "anyOf": [
+                      {
+                        "items": {
+                          "additionalProperties": false,
+                          "properties": {
+                            "id": {
+                              "pattern": "^[A-P]$",
+                              "title": "Id",
+                              "type": "string"
+                            },
+                            "type": {
+                              "enum": [
+                                "protein",
+                                "dna",
+                                "rna",
+                                "ligand"
+                              ],
+                              "title": "Type",
+                              "type": "string"
+                            },
+                            "length": {
+                              "description": "Residues, nucleotides or ligand heavy atoms.",
+                              "minimum": 1,
+                              "title": "Length",
+                              "type": "integer"
+                            },
+                            "mean_plddt": {
+                              "anyOf": [
+                                {
+                                  "maximum": 1,
+                                  "minimum": 0,
+                                  "type": "number"
+                                },
+                                {
+                                  "type": "null"
+                                }
+                              ],
+                              "default": null,
+                              "description": "Mean pLDDT over this chain's residues.",
+                              "title": "Mean Plddt"
+                            }
+                          },
+                          "required": [
+                            "id",
+                            "type",
+                            "length"
+                          ],
+                          "title": "ChainScore",
+                          "type": "object"
+                        },
+                        "maxItems": 16,
+                        "type": "array"
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ],
+                    "default": null,
+                    "title": "Chains"
+                  },
+                  "ptm": {
+                    "anyOf": [
+                      {
+                        "maximum": 1,
+                        "minimum": 0,
+                        "type": "number"
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ],
+                    "default": null,
+                    "description": "pTM, the predicted TM-score: confidence in the overall fold.",
+                    "title": "Ptm"
+                  },
+                  "interface_ptm": {
+                    "anyOf": [
+                      {
+                        "maximum": 1,
+                        "minimum": 0,
+                        "type": "number"
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ],
+                    "default": null,
+                    "description": "Interface pTM: confidence in how the chains of the whole complex sit against each other.",
+                    "title": "Interface Ptm"
+                  },
+                  "pair_chains_iptm": {
+                    "anyOf": [
+                      {
+                        "items": {
+                          "additionalProperties": false,
+                          "properties": {
+                            "chain_a": {
+                              "maxLength": 128,
+                              "minLength": 1,
+                              "title": "Chain A",
+                              "type": "string"
+                            },
+                            "chain_b": {
+                              "maxLength": 128,
+                              "minLength": 1,
+                              "title": "Chain B",
+                              "type": "string"
+                            },
+                            "iptm": {
+                              "description": "The larger of the model's two ipTM values for this pair.",
+                              "maximum": 1,
+                              "minimum": 0,
+                              "title": "Iptm",
+                              "type": "number"
+                            }
+                          },
+                          "required": [
+                            "chain_a",
+                            "chain_b",
+                            "iptm"
+                          ],
+                          "title": "PairIptm",
+                          "type": "object"
+                        },
+                        "maxItems": 120,
+                        "type": "array"
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ],
+                    "default": null,
+                    "description": "ipTM per chain pair: confidence in that one pair's interface.",
+                    "title": "Pair Chains Iptm"
+                  },
+                  "plddt_summary": {
+                    "anyOf": [
+                      {
+                        "additionalProperties": false,
+                        "properties": {
+                          "mean": {
+                            "maximum": 1,
+                            "minimum": 0,
+                            "title": "Mean",
+                            "type": "number"
+                          },
+                          "minimum": {
+                            "maximum": 1,
+                            "minimum": 0,
+                            "title": "Minimum",
+                            "type": "number"
+                          },
+                          "maximum": {
+                            "maximum": 1,
+                            "minimum": 0,
+                            "title": "Maximum",
+                            "type": "number"
+                          }
+                        },
+                        "required": [
+                          "mean",
+                          "minimum",
+                          "maximum"
+                        ],
+                        "title": "PlddtSummary",
+                        "type": "object"
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ],
+                    "default": null,
+                    "description": "pLDDT, the confidence in local structure at each residue, nucleotide or ligand heavy atom, as its mean, minimum and maximum over all of them."
+                  }
+                },
+                "title": "FoldScores",
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "warnings": {
+            "items": {
+              "maxLength": 512,
+              "type": "string"
+            },
+            "maxItems": 8,
+            "title": "Warnings",
+            "type": "array"
+          }
+        },
+        "required": [
+          "execution_status",
+          "model_id",
+          "chains",
+          "cost"
+        ],
+        "type": "object",
+        "additionalProperties": false,
+        "description": "A fold either scored within the call or queued as a run that is read later.\n\nA done fold has its scores and the exact cost Biohub billed, and no run to read; a\nqueued fold has the run ID to read it with and the cost of the run once it finishes.",
+        "title": "FoldResult"
+      },
+      "title": "Fold at maximum accuracy with ESMFold2"
+    },
+    {
+      "_meta": {
+        "fastmcp": {
+          "tags": [
+            "biohub"
+          ]
+        }
+      },
+      "annotations": {
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": false,
+        "readOnlyHint": true,
+        "title": "Read a fold run"
+      },
+      "description": "Read one fold run by run_id: its status, and once it is done, its scores on a 0-to-1 scale and what the fold was billed. Only the fold tools create runs: esmfold2_fold_max_accuracy always, and esmfold2_fold_complex when it returns queued; a fold that returned done has no run. It starts no compute and costs nothing. It waits on the server for at most 5 seconds, so a run still queued or in_progress is normal and can be read again later. A run not started within 24 hours is cancelled and not charged. Failed and cancelled runs carry Biohub's reason in error_message, and calling the fold tool again folds and bills again. Reading a run more than 31 days after submission fails with expired. It returns no structure file, coordinates or PAE; those come from the authenticated Biohub API or SDK.",
+      "inputSchema": {
+        "properties": {
+          "run_id": {
+            "description": "The run_id a fold tool returned, such as 6c0d2b7e-90f1-4d3a-8b55-1e2f3a4b5c6d-00000.",
+            "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}-[0-9]{5}$",
+            "type": "string"
+          },
+          "wait_seconds": {
+            "default": 5,
+            "description": "Seconds to wait on the server for the run to finish, at most 5; 0 reads once.",
+            "maximum": 5,
+            "minimum": 0,
+            "type": "integer"
+          }
+        },
+        "required": [
+          "run_id"
+        ],
+        "type": "object",
+        "additionalProperties": false
+      },
+      "name": "biohub_get_inference_run",
+      "outputSchema": {
+        "properties": {
+          "run_id": {
+            "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}-[0-9]{5}$",
+            "title": "Run Id",
+            "type": "string"
+          },
+          "execution_status": {
+            "enum": [
+              "queued",
+              "in_progress",
+              "done",
+              "failed",
+              "cancelled"
+            ],
+            "title": "Execution Status",
+            "type": "string"
+          },
+          "results_expire_at": {
+            "description": "When Biohub deletes the result, as an ISO 8601 UTC time.",
+            "maxLength": 64,
+            "title": "Results Expire At",
+            "type": "string"
+          },
+          "error_message": {
+            "anyOf": [
+              {
+                "maxLength": 512,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Error Message"
+          },
+          "model_id": {
+            "anyOf": [
+              {
+                "maxLength": 64,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "description": "The model that ran. Any of the account's fold runs can be read, so it can be a model these tools never submit.",
+            "title": "Model Id"
+          },
+          "usage": {
+            "anyOf": [
+              {
+                "additionalProperties": false,
+                "properties": {
+                  "credits": {
+                    "minimum": 0,
+                    "title": "Credits",
+                    "type": "number"
+                  }
+                },
+                "required": [
+                  "credits"
+                ],
+                "title": "Usage",
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "description": "What Biohub billed for the fold itself; reading the run is free."
+          },
+          "summary": {
+            "anyOf": [
+              {
+                "additionalProperties": false,
+                "description": "Confidence scores from 0 to 1, not the 0-to-100 scale some tools use.\n\nPer-chain pLDDT in chains comes only from the protein fold endpoint.\nPair ipTM also covers all-atom and max-accuracy complexes, including ligands, when\nthe result supplies it.",
+                "properties": {
+                  "chains": {
+                    "anyOf": [
+                      {
+                        "items": {
+                          "additionalProperties": false,
+                          "properties": {
+                            "id": {
+                              "pattern": "^[A-P]$",
+                              "title": "Id",
+                              "type": "string"
+                            },
+                            "type": {
+                              "enum": [
+                                "protein",
+                                "dna",
+                                "rna",
+                                "ligand"
+                              ],
+                              "title": "Type",
+                              "type": "string"
+                            },
+                            "length": {
+                              "description": "Residues, nucleotides or ligand heavy atoms.",
+                              "minimum": 1,
+                              "title": "Length",
+                              "type": "integer"
+                            },
+                            "mean_plddt": {
+                              "anyOf": [
+                                {
+                                  "maximum": 1,
+                                  "minimum": 0,
+                                  "type": "number"
+                                },
+                                {
+                                  "type": "null"
+                                }
+                              ],
+                              "default": null,
+                              "description": "Mean pLDDT over this chain's residues.",
+                              "title": "Mean Plddt"
+                            }
+                          },
+                          "required": [
+                            "id",
+                            "type",
+                            "length"
+                          ],
+                          "title": "ChainScore",
+                          "type": "object"
+                        },
+                        "maxItems": 16,
+                        "type": "array"
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ],
+                    "default": null,
+                    "title": "Chains"
+                  },
+                  "ptm": {
+                    "anyOf": [
+                      {
+                        "maximum": 1,
+                        "minimum": 0,
+                        "type": "number"
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ],
+                    "default": null,
+                    "description": "pTM, the predicted TM-score: confidence in the overall fold.",
+                    "title": "Ptm"
+                  },
+                  "interface_ptm": {
+                    "anyOf": [
+                      {
+                        "maximum": 1,
+                        "minimum": 0,
+                        "type": "number"
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ],
+                    "default": null,
+                    "description": "Interface pTM: confidence in how the chains of the whole complex sit against each other.",
+                    "title": "Interface Ptm"
+                  },
+                  "pair_chains_iptm": {
+                    "anyOf": [
+                      {
+                        "items": {
+                          "additionalProperties": false,
+                          "properties": {
+                            "chain_a": {
+                              "maxLength": 128,
+                              "minLength": 1,
+                              "title": "Chain A",
+                              "type": "string"
+                            },
+                            "chain_b": {
+                              "maxLength": 128,
+                              "minLength": 1,
+                              "title": "Chain B",
+                              "type": "string"
+                            },
+                            "iptm": {
+                              "description": "The larger of the model's two ipTM values for this pair.",
+                              "maximum": 1,
+                              "minimum": 0,
+                              "title": "Iptm",
+                              "type": "number"
+                            }
+                          },
+                          "required": [
+                            "chain_a",
+                            "chain_b",
+                            "iptm"
+                          ],
+                          "title": "PairIptm",
+                          "type": "object"
+                        },
+                        "maxItems": 120,
+                        "type": "array"
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ],
+                    "default": null,
+                    "description": "ipTM per chain pair: confidence in that one pair's interface.",
+                    "title": "Pair Chains Iptm"
+                  },
+                  "plddt_summary": {
+                    "anyOf": [
+                      {
+                        "additionalProperties": false,
+                        "properties": {
+                          "mean": {
+                            "maximum": 1,
+                            "minimum": 0,
+                            "title": "Mean",
+                            "type": "number"
+                          },
+                          "minimum": {
+                            "maximum": 1,
+                            "minimum": 0,
+                            "title": "Minimum",
+                            "type": "number"
+                          },
+                          "maximum": {
+                            "maximum": 1,
+                            "minimum": 0,
+                            "title": "Maximum",
+                            "type": "number"
+                          }
+                        },
+                        "required": [
+                          "mean",
+                          "minimum",
+                          "maximum"
+                        ],
+                        "title": "PlddtSummary",
+                        "type": "object"
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ],
+                    "default": null,
+                    "description": "pLDDT, the confidence in local structure at each residue, nucleotide or ligand heavy atom, as its mean, minimum and maximum over all of them."
+                  }
+                },
+                "title": "FoldScores",
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "warnings": {
+            "items": {
+              "maxLength": 512,
+              "type": "string"
+            },
+            "maxItems": 8,
+            "title": "Warnings",
+            "type": "array"
+          }
+        },
+        "required": [
+          "run_id",
+          "execution_status",
+          "results_expire_at"
+        ],
+        "type": "object",
+        "additionalProperties": false,
+        "description": "One fold run as Biohub reports it, with its scores once it is done.",
+        "title": "InferenceRun"
+      },
+      "title": "Read a fold run"
+    },
+    {
+      "_meta": {
+        "fastmcp": {
+          "tags": [
+            "esmc"
+          ]
+        }
+      },
+      "annotations": {
+        "destructiveHint": false,
+        "idempotentHint": false,
+        "openWorldHint": false,
+        "readOnlyHint": false,
+        "title": "Score named mutations with ESMC"
+      },
+      "description": "Score substitutions the user already named, such as W43F or a list from a paper, in one protein with ESMC. Each is scored alone on the wild-type sequence, not as part of a combined variant. The score is ln P(substituted) - ln P(wild type) with that position masked, so a positive score means ESMC finds the new residue more likely there. These are predictions, not measured fitness, stability or activity. It bills the signed-in user's Biohub account one ESMC call per distinct position, at most 8, each costing the protein's length divided by 10,000 credits, so any substitutions at 3 positions of a 300-residue protein cost 0.09 credits. Each call starts new work and can bill again; an indeterminate failure may already have been billed. esmc_scan_mutation_tolerance finds positions worth testing when none are named.",
+      "inputSchema": {
+        "properties": {
+          "sequence": {
+            "description": "One protein chain of 1 to 2,046 residues in one-letter codes; whitespace is ignored, and '|' and ':' are refused.",
+            "maxLength": 8192,
+            "minLength": 1,
+            "type": "string"
+          },
+          "mutations": {
+            "description": "1-64 substitutions, 1-based, at most 8 distinct positions. Each expected_wild_type is checked against the sequence.",
+            "items": {
+              "additionalProperties": false,
+              "description": "One named substitution, such as W43F.",
+              "properties": {
+                "position": {
+                  "description": "1-based position.",
+                  "maximum": 2046,
+                  "minimum": 1,
+                  "type": "integer"
+                },
+                "expected_wild_type": {
+                  "description": "The residue the caller expects at that position; it is checked.",
+                  "enum": [
+                    "A",
+                    "C",
+                    "D",
+                    "E",
+                    "F",
+                    "G",
+                    "H",
+                    "I",
+                    "K",
+                    "L",
+                    "M",
+                    "N",
+                    "P",
+                    "Q",
+                    "R",
+                    "S",
+                    "T",
+                    "V",
+                    "W",
+                    "Y"
+                  ],
+                  "type": "string"
+                },
+                "alternate": {
+                  "description": "The substituted residue.",
+                  "enum": [
+                    "A",
+                    "C",
+                    "D",
+                    "E",
+                    "F",
+                    "G",
+                    "H",
+                    "I",
+                    "K",
+                    "L",
+                    "M",
+                    "N",
+                    "P",
+                    "Q",
+                    "R",
+                    "S",
+                    "T",
+                    "V",
+                    "W",
+                    "Y"
+                  ],
+                  "type": "string"
+                }
+              },
+              "required": [
+                "position",
+                "expected_wild_type",
+                "alternate"
+              ],
+              "type": "object"
+            },
+            "maxItems": 64,
+            "minItems": 1,
+            "type": "array"
+          },
+          "model_id": {
+            "default": "esmc-600m-2024-12",
+            "description": "esmc-600m-2024-12, the default, has about 600 million parameters and 36 layers; esmc-300m-2024-12 has about 300 million parameters and 30 layers; esmc-6b-2024-12 has about 6 billion parameters and 80 layers; all cost the same per call.",
+            "enum": [
+              "esmc-600m-2024-12",
+              "esmc-300m-2024-12",
+              "esmc-6b-2024-12"
+            ],
+            "type": "string"
+          }
+        },
+        "required": [
+          "sequence",
+          "mutations"
+        ],
+        "type": "object",
+        "additionalProperties": false
+      },
+      "name": "esmc_score_mutations",
+      "outputSchema": {
+        "properties": {
+          "model_id": {
+            "enum": [
+              "esmc-600m-2024-12",
+              "esmc-300m-2024-12",
+              "esmc-6b-2024-12"
+            ],
+            "title": "Model Id",
+            "type": "string"
+          },
+          "scores": {
+            "items": {
+              "additionalProperties": false,
+              "description": "One substitution's score; the alternate's log probability is this one plus the score.",
+              "properties": {
+                "position": {
+                  "minimum": 1,
+                  "title": "Position",
+                  "type": "integer"
+                },
+                "expected_wild_type": {
+                  "enum": [
+                    "A",
+                    "C",
+                    "D",
+                    "E",
+                    "F",
+                    "G",
+                    "H",
+                    "I",
+                    "K",
+                    "L",
+                    "M",
+                    "N",
+                    "P",
+                    "Q",
+                    "R",
+                    "S",
+                    "T",
+                    "V",
+                    "W",
+                    "Y"
+                  ],
+                  "title": "Expected Wild Type",
+                  "type": "string"
+                },
+                "alternate": {
+                  "enum": [
+                    "A",
+                    "C",
+                    "D",
+                    "E",
+                    "F",
+                    "G",
+                    "H",
+                    "I",
+                    "K",
+                    "L",
+                    "M",
+                    "N",
+                    "P",
+                    "Q",
+                    "R",
+                    "S",
+                    "T",
+                    "V",
+                    "W",
+                    "Y"
+                  ],
+                  "title": "Alternate",
+                  "type": "string"
+                },
+                "score": {
+                  "title": "Score",
+                  "type": "number"
+                },
+                "wild_type_log_probability": {
+                  "title": "Wild Type Log Probability",
+                  "type": "number"
+                }
+              },
+              "required": [
+                "position",
+                "expected_wild_type",
+                "alternate",
+                "score",
+                "wild_type_log_probability"
+              ],
+              "title": "MutationScore",
+              "type": "object"
+            },
+            "maxItems": 64,
+            "minItems": 1,
+            "title": "Scores",
+            "type": "array"
+          },
+          "usage": {
+            "additionalProperties": false,
+            "description": "The ESMC calls made and the credits Biohub billed for them.",
+            "properties": {
+              "credits": {
+                "minimum": 0,
+                "title": "Credits",
+                "type": "number"
+              },
+              "logits_calls": {
+                "minimum": 0,
+                "title": "Logits Calls",
+                "type": "integer"
+              }
+            },
+            "required": [
+              "credits",
+              "logits_calls"
+            ],
+            "title": "EsmcUsage",
+            "type": "object"
+          }
+        },
+        "required": [
+          "model_id",
+          "scores",
+          "usage"
+        ],
+        "type": "object",
+        "additionalProperties": false,
+        "description": "Masked-marginal scores for named substitutions, in the order given.",
+        "title": "MutationScores"
+      },
+      "title": "Score named mutations with ESMC"
+    },
+    {
+      "_meta": {
+        "fastmcp": {
+          "tags": [
+            "esmc"
+          ]
+        }
+      },
+      "annotations": {
+        "destructiveHint": false,
+        "idempotentHint": false,
+        "openWorldHint": false,
+        "readOnlyHint": false,
+        "title": "Scan a protein's mutation tolerance with ESMC"
+      },
+      "description": "Find where a protein is most and least tolerant to change, when no substitutions are named yet. It masks each scanned position, scores all 20 amino acids with ESMC, and returns only the most constrained and most tolerant positions, ranked by ranking_metric, with their strongest substitutions, not the full matrix. These are predictions, not measured fitness. It bills the signed-in user's Biohub account one ESMC call per scanned position, so a scan costs positions times length divided by 10,000 credits: 9 for all of a 300-residue protein, and never more than 20. Each call starts new work and can bill again; an indeterminate failure may already have been billed. At the time limit, or on a rate limit after some positions finished, it stops starting calls and returns partial, billed for the finished positions only, with the rest in coverage.unscanned. Otherwise a failure returns an error, and positions that finished were still billed. It never shortens a long protein silently, and offers the 300M, 600M and 6B models.",
+      "inputSchema": {
+        "properties": {
+          "sequence": {
+            "description": "One protein chain of 1 to 2,046 residues in one-letter codes; whitespace is ignored, and '|' and ':' are refused.",
+            "maxLength": 8192,
+            "minLength": 1,
+            "type": "string"
+          },
+          "positions": {
+            "anyOf": [
+              {
+                "const": "all",
+                "type": "string"
+              },
+              {
+                "items": {
+                  "maximum": 2046,
+                  "minimum": 1,
+                  "type": "integer"
+                },
+                "maxItems": 2046,
+                "minItems": 1,
+                "type": "array"
+              },
+              {
+                "additionalProperties": false,
+                "description": "A 1-based window of positions, both ends included.",
+                "properties": {
+                  "start": {
+                    "maximum": 2046,
+                    "minimum": 1,
+                    "type": "integer"
+                  },
+                  "end": {
+                    "maximum": 2046,
+                    "minimum": 1,
+                    "type": "integer"
+                  }
+                },
+                "required": [
+                  "start",
+                  "end"
+                ],
+                "type": "object"
+              }
+            ],
+            "default": "all",
+            "description": "\"all\", a list of 1-based positions, or {start, end}. At most 400 positions, and fewer for long proteins: 200,000 divided by the length. Over that, the tool refuses with a window to try; it never shortens the scan."
+          },
+          "model_id": {
+            "default": "esmc-6b-2024-12",
+            "description": "esmc-600m-2024-12 has about 600 million parameters and 36 layers; esmc-300m-2024-12 has about 300 million parameters and 30 layers; esmc-6b-2024-12, the default, has about 6 billion parameters and 80 layers; all cost the same per call.",
+            "enum": [
+              "esmc-600m-2024-12",
+              "esmc-300m-2024-12",
+              "esmc-6b-2024-12"
+            ],
+            "type": "string"
+          },
+          "ranking_metric": {
+            "default": "entropy_bits",
+            "description": "entropy_bits, the default, ranks by entropy in bits over ESMC's full output vocabulary at the masked position, every column of the row and not only the 20 amino acids; low means constrained. negative_substitution_fraction ranks by the share of the 19 other amino acids that score below the wild type, high meaning constrained, with ties broken by entropy.",
+            "enum": [
+              "entropy_bits",
+              "negative_substitution_fraction"
+            ],
+            "type": "string"
+          }
+        },
+        "required": [
+          "sequence"
+        ],
+        "type": "object",
+        "additionalProperties": false
+      },
+      "name": "esmc_scan_mutation_tolerance",
+      "outputSchema": {
+        "properties": {
+          "execution_status": {
+            "enum": [
+              "done",
+              "partial"
+            ],
+            "title": "Execution Status",
+            "type": "string"
+          },
+          "model_id": {
+            "enum": [
+              "esmc-600m-2024-12",
+              "esmc-300m-2024-12",
+              "esmc-6b-2024-12"
+            ],
+            "title": "Model Id",
+            "type": "string"
+          },
+          "most_constrained": {
+            "description": "Up to 10 positions, most constrained first.",
+            "items": {
+              "additionalProperties": false,
+              "properties": {
+                "position": {
+                  "description": "1-based position.",
+                  "minimum": 1,
+                  "title": "Position",
+                  "type": "integer"
+                },
+                "wild_type": {
+                  "description": "The amino acid the sequence has at this position.",
+                  "enum": [
+                    "A",
+                    "C",
+                    "D",
+                    "E",
+                    "F",
+                    "G",
+                    "H",
+                    "I",
+                    "K",
+                    "L",
+                    "M",
+                    "N",
+                    "P",
+                    "Q",
+                    "R",
+                    "S",
+                    "T",
+                    "V",
+                    "W",
+                    "Y"
+                  ],
+                  "title": "Wild Type",
+                  "type": "string"
+                },
+                "entropy_bits": {
+                  "description": "Entropy in bits over ESMC's full output vocabulary at the masked position, every column of the row and not only the 20 amino acids; low means constrained.",
+                  "title": "Entropy Bits",
+                  "type": "number"
+                },
+                "negative_substitution_fraction": {
+                  "description": "Share of the 19 other amino acids that score below the wild type.",
+                  "maximum": 1,
+                  "minimum": 0,
+                  "title": "Negative Substitution Fraction",
+                  "type": "number"
+                },
+                "top_substitutions": {
+                  "description": "The 3 highest-scoring alternates.",
+                  "items": {
+                    "additionalProperties": false,
+                    "properties": {
+                      "alternate": {
+                        "description": "The amino acid scored in place of the wild type.",
+                        "enum": [
+                          "A",
+                          "C",
+                          "D",
+                          "E",
+                          "F",
+                          "G",
+                          "H",
+                          "I",
+                          "K",
+                          "L",
+                          "M",
+                          "N",
+                          "P",
+                          "Q",
+                          "R",
+                          "S",
+                          "T",
+                          "V",
+                          "W",
+                          "Y"
+                        ],
+                        "title": "Alternate",
+                        "type": "string"
+                      },
+                      "score": {
+                        "description": "ln P(alternate) - ln P(wild type) with the position masked, as esmc_score_mutations scores it; positive means ESMC prefers the alternate.",
+                        "title": "Score",
+                        "type": "number"
+                      }
+                    },
+                    "required": [
+                      "alternate",
+                      "score"
+                    ],
+                    "title": "SubstitutionScore",
+                    "type": "object"
+                  },
+                  "maxItems": 3,
+                  "title": "Top Substitutions",
+                  "type": "array"
+                }
+              },
+              "required": [
+                "position",
+                "wild_type",
+                "entropy_bits",
+                "negative_substitution_fraction",
+                "top_substitutions"
+              ],
+              "title": "ScannedPosition",
+              "type": "object"
+            },
+            "maxItems": 10,
+            "title": "Most Constrained",
+            "type": "array"
+          },
+          "most_tolerant": {
+            "description": "Up to 10 positions, most tolerant first; under 20 scanned positions, the two lists share positions.",
+            "items": {
+              "additionalProperties": false,
+              "properties": {
+                "position": {
+                  "description": "1-based position.",
+                  "minimum": 1,
+                  "title": "Position",
+                  "type": "integer"
+                },
+                "wild_type": {
+                  "description": "The amino acid the sequence has at this position.",
+                  "enum": [
+                    "A",
+                    "C",
+                    "D",
+                    "E",
+                    "F",
+                    "G",
+                    "H",
+                    "I",
+                    "K",
+                    "L",
+                    "M",
+                    "N",
+                    "P",
+                    "Q",
+                    "R",
+                    "S",
+                    "T",
+                    "V",
+                    "W",
+                    "Y"
+                  ],
+                  "title": "Wild Type",
+                  "type": "string"
+                },
+                "entropy_bits": {
+                  "description": "Entropy in bits over ESMC's full output vocabulary at the masked position, every column of the row and not only the 20 amino acids; low means constrained.",
+                  "title": "Entropy Bits",
+                  "type": "number"
+                },
+                "negative_substitution_fraction": {
+                  "description": "Share of the 19 other amino acids that score below the wild type.",
+                  "maximum": 1,
+                  "minimum": 0,
+                  "title": "Negative Substitution Fraction",
+                  "type": "number"
+                },
+                "top_substitutions": {
+                  "description": "The 3 highest-scoring alternates.",
+                  "items": {
+                    "additionalProperties": false,
+                    "properties": {
+                      "alternate": {
+                        "description": "The amino acid scored in place of the wild type.",
+                        "enum": [
+                          "A",
+                          "C",
+                          "D",
+                          "E",
+                          "F",
+                          "G",
+                          "H",
+                          "I",
+                          "K",
+                          "L",
+                          "M",
+                          "N",
+                          "P",
+                          "Q",
+                          "R",
+                          "S",
+                          "T",
+                          "V",
+                          "W",
+                          "Y"
+                        ],
+                        "title": "Alternate",
+                        "type": "string"
+                      },
+                      "score": {
+                        "description": "ln P(alternate) - ln P(wild type) with the position masked, as esmc_score_mutations scores it; positive means ESMC prefers the alternate.",
+                        "title": "Score",
+                        "type": "number"
+                      }
+                    },
+                    "required": [
+                      "alternate",
+                      "score"
+                    ],
+                    "title": "SubstitutionScore",
+                    "type": "object"
+                  },
+                  "maxItems": 3,
+                  "title": "Top Substitutions",
+                  "type": "array"
+                }
+              },
+              "required": [
+                "position",
+                "wild_type",
+                "entropy_bits",
+                "negative_substitution_fraction",
+                "top_substitutions"
+              ],
+              "title": "ScannedPosition",
+              "type": "object"
+            },
+            "maxItems": 10,
+            "title": "Most Tolerant",
+            "type": "array"
+          },
+          "coverage": {
+            "additionalProperties": false,
+            "properties": {
+              "requested": {
+                "description": "How many positions were asked for.",
+                "minimum": 1,
+                "title": "Requested",
+                "type": "integer"
+              },
+              "scanned": {
+                "description": "How many positions finished and were billed.",
+                "minimum": 0,
+                "title": "Scanned",
+                "type": "integer"
+              },
+              "skipped": {
+                "description": "Positions not scanned because their wild type is not one of the 20 standard amino acids.",
+                "items": {
+                  "type": "integer"
+                },
+                "maxItems": 400,
+                "title": "Skipped",
+                "type": "array"
+              },
+              "unscanned": {
+                "description": "Positions a partial scan did not reach, which can be passed as positions to scan them.",
+                "items": {
+                  "type": "integer"
+                },
+                "maxItems": 400,
+                "title": "Unscanned",
+                "type": "array"
+              }
+            },
+            "required": [
+              "requested",
+              "scanned"
+            ],
+            "title": "ScanCoverage",
+            "type": "object"
+          },
+          "usage": {
+            "additionalProperties": false,
+            "description": "The ESMC calls made and the credits Biohub billed for them.",
+            "properties": {
+              "credits": {
+                "minimum": 0,
+                "title": "Credits",
+                "type": "number"
+              },
+              "logits_calls": {
+                "minimum": 0,
+                "title": "Logits Calls",
+                "type": "integer"
+              }
+            },
+            "required": [
+              "credits",
+              "logits_calls"
+            ],
+            "title": "EsmcUsage",
+            "type": "object"
+          },
+          "warnings": {
+            "items": {
+              "maxLength": 512,
+              "type": "string"
+            },
+            "maxItems": 8,
+            "title": "Warnings",
+            "type": "array"
+          }
+        },
+        "required": [
+          "execution_status",
+          "model_id",
+          "most_constrained",
+          "most_tolerant",
+          "coverage",
+          "usage"
+        ],
+        "type": "object",
+        "additionalProperties": false,
+        "description": "A scan's most constrained and most tolerant positions, and what it billed.",
+        "title": "MutationScan"
+      },
+      "title": "Scan a protein's mutation tolerance with ESMC"
+    }
+  ]
+}
