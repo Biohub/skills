@@ -1,0 +1,21 @@
+{
+  "name": "biohub-waveorder",
+  "version": "0.1.0",
+  "description": "Reconstruct phase and fluorescence microscopy data with waveorder on your own computer, and visualize its transfer functions.",
+  "author": {
+    "name": "Chan Zuckerberg Biohub, Inc.",
+    "email": "support@biohub.org",
+    "url": "https://biohub.org/"
+  },
+  "homepage": "https://github.com/Biohub/waveorder",
+  "license": "BSD-3-Clause",
+  "keywords": [
+    "biohub",
+    "waveorder",
+    "microscopy",
+    "phase-reconstruction",
+    "deconvolution",
+    "computational-imaging"
+  ],
+  "displayName": "Biohub WaveOrder"
+}

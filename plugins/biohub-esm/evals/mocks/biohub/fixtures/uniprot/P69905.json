@@ -1,0 +1,16 @@
+{
+  "query_label": "P69905",
+  "proteins": [
+    {
+      "accession": "P69905",
+      "protein_name": "Hemoglobin subunit alpha",
+      "gene": "HBA1",
+      "organism": "Homo sapiens",
+      "function": "Involved in oxygen transport from the lung to the various peripheral tissues | Hemopressin acts as an antagonist peptide of the cannabinoid receptor CNR1 (PubMed:18077343). Hemopressin-binding efficiently blocks cannabinoid receptor CNR1 and subsequent signaling (PubMed:18077343)",
+      "sequence": "MVLSPADKTNVKAAWGKVGAHAGEYGAEALERMFLSFPTTKTYFPHFDLSHGSAQVKGHGKKVADALTNAVAHVDDMPNALSALSDLHAHKLRVDPVNFKLLSHCLLVTLAAHLPAEFTPAVHASLDKFLASVSTVLTSKYR",
+      "sequence_length": 142
+    }
+  ],
+  "num_results": 1,
+  "total_results": 1
+}

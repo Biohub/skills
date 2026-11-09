@@ -1,0 +1,33 @@
+{
+  "name": "biohub-tcr",
+  "version": "0.1.0",
+  "description": "Analyze processed alpha-beta TCR data with TCR-Workbench on your own computer: peptide-MHC predictions, DecoderTCR scores, and peptide profiles, with setup help.",
+  "author": {
+    "name": "Chan Zuckerberg Biohub, Inc.",
+    "email": "support@biohub.org",
+    "url": "https://biohub.org/"
+  },
+  "homepage": "https://github.com/akdslab/tcr-workbench",
+  "license": "MIT",
+  "keywords": [
+    "biohub",
+    "tcr",
+    "immunology",
+    "peptide-mhc",
+    "decodertcr",
+    "computational-immunology"
+  ],
+  "skills": "./skills",
+  "interface": {
+    "displayName": "Biohub TCR-Workbench",
+    "shortDescription": "Analyze TCR data with TCR-Workbench",
+    "developerName": "Chan Zuckerberg Biohub, Inc.",
+    "category": "Education & Research",
+    "capabilities": [
+      "Interactive",
+      "Read",
+      "Write"
+    ],
+    "websiteURL": "https://github.com/akdslab/tcr-workbench"
+  }
+}

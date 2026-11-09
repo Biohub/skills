@@ -1,0 +1,26 @@
+{
+  "name": "biohub-esm",
+  "displayName": "Biohub ESM",
+  "version": "1.0.0",
+  "description": "Understand proteins with ESM on the Biohub MCP: score mutations, find constrained and tolerant positions, fold and view proteins and complexes, and discover relatives in the ESM Atlas.",
+  "author": {
+    "name": "Chan Zuckerberg Biohub, Inc.",
+    "email": "support@biohub.org",
+    "url": "https://biohub.org/"
+  },
+  "homepage": "https://biohub.ai/esm/protein",
+  "license": "MIT",
+  "keywords": [
+    "biohub",
+    "esm",
+    "esmc",
+    "esmfold2",
+    "esm-atlas",
+    "mcp",
+    "protein-language-model",
+    "mutation-scoring",
+    "sparse-autoencoder",
+    "structure-prediction",
+    "computational-biology"
+  ]
+}

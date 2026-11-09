@@ -1,0 +1,16 @@
+{
+  "query_label": "P68871",
+  "proteins": [
+    {
+      "accession": "P68871",
+      "protein_name": "Hemoglobin subunit beta",
+      "gene": "HBB",
+      "organism": "Homo sapiens",
+      "function": "Involved in oxygen transport from the lung to the various peripheral tissues | LVV-hemorphin-7 potentiates the activity of bradykinin, causing a decrease in blood pressure | Functions as an endogenous inhibitor of enkephalin-degrading enzymes such as DPP3, and as a selective antagonist of the P2RX3 receptor which is involved in pain signaling, these properties implicate it as a regulator of pain and inflammation",
+      "sequence": "MVHLTPEEKSAVTALWGKVNVDEVGGEALGRLLVVYPWTQRFFESFGDLSTPDAVMGNPKVKAHGKKVLGAFSDGLAHLDNLKGTFATLSELHCDKLHVDPENFRLLGNVLVCVLAHHFGKEFTPPVQAAYQKVVAGVANALAHKYH",
+      "sequence_length": 147
+    }
+  ],
+  "num_results": 1,
+  "total_results": 1
+}

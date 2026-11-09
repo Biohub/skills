@@ -1,0 +1,50 @@
+{
+  "name": "biohub-esm",
+  "version": "1.0.0",
+  "description": "Understand proteins with ESM on the Biohub MCP: score mutations, find constrained and tolerant positions, fold and view proteins and complexes, and discover relatives in the ESM Atlas.",
+  "author": {
+    "name": "Chan Zuckerberg Biohub, Inc.",
+    "email": "support@biohub.org",
+    "url": "https://biohub.org/"
+  },
+  "homepage": "https://biohub.ai/esm/protein",
+  "license": "MIT",
+  "keywords": [
+    "biohub",
+    "esm",
+    "esmc",
+    "esmfold2",
+    "esm-atlas",
+    "mcp",
+    "protein-language-model",
+    "mutation-scoring",
+    "sparse-autoencoder",
+    "structure-prediction",
+    "computational-biology"
+  ],
+  "skills": "./skills",
+  "mcpServers": "./.mcp.json",
+  "interface": {
+    "displayName": "Biohub ESM",
+    "shortDescription": "Understand proteins with ESM",
+    "longDescription": "Biohub ESM helps you understand proteins from a name, accession, or sequence: score named mutations, find where a protein is constrained or tolerant, fold and view proteins and complexes with DNA, RNA, or ligands, and discover related proteins and their learned features in the ESM Atlas. It runs on the Biohub MCP after you sign in to Biohub, needs no API key or local install, and reports confidence, cost, and sources with every result.",
+    "developerName": "Chan Zuckerberg Biohub, Inc.",
+    "category": "Education & Research",
+    "capabilities": [
+      "Interactive",
+      "Read"
+    ],
+    "websiteURL": "https://biohub.ai/esm/protein",
+    "privacyPolicyURL": "https://biohub.org/privacy-policy/",
+    "termsOfServiceURL": "https://biohub.org/terms-of-use/",
+    "supportURL": "https://biohub.org/contact/",
+    "brandColor": "#6E4FF9",
+    "composerIcon": "./assets/app-icon.svg",
+    "logo": "./assets/app-icon.svg",
+    "defaultPrompt": [
+      "Where is GB1 most constrained or tolerant to mutation? Show me on its structure.",
+      "Fold human hemoglobin as an alpha2-beta2 tetramer from P69905 and P68871, and show me the complex.",
+      "Find proteins similar to GB1 and show me the closest one."
+    ]
+  }
+}
