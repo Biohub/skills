@@ -8,15 +8,15 @@ Every skill runs on the [Biohub MCP](connect-mcp.md), which needs a Biohub sign-
 
 | Skill | What it does | Biohub MCP tools |
 | --- | --- | --- |
-| [`biohub-esm`](../plugins/biohub-esm/skills/biohub-esm/) | The entry point: identifies the scientific goal, routes it to one skill, and says plainly what the plugin does not offer | None |
+| [`biohub`](../plugins/biohub-esm/skills/biohub/) | The entry point: identifies the scientific goal, routes it to one skill, and says plainly what the plugin does not offer | None |
 | [`esm-atlas`](../plugins/biohub-esm/skills/esm-atlas/) | Finds similar proteins, resolves protein names and accessions, reports Atlas records, SAE features, and cluster context, and shows Atlas structures | `esm_atlas_*`, `ui_show_structure` |
 | [`esmc`](../plugins/biohub-esm/skills/esmc/) | Scores named substitutions and scans a protein for constrained and tolerant positions, then shows them on the structure | `esmc_score_mutations`, `esmc_scan_mutation_tolerance`, `ui_show_structure` |
 | [`esmfold2`](../plugins/biohub-esm/skills/esmfold2/) | Folds and shows proteins, and complexes with DNA, RNA, or ligands, with pTM, ipTM, and pLDDT | `ui_show_structure`, `esmfold2_fold_complex`, `esmfold2_fold_max_accuracy`, `biohub_get_inference_run` |
-| [`biohub-esm-setup`](../plugins/biohub-esm/skills/biohub-esm-setup/) | Connects the Biohub MCP, signs you in, and fixes connection, sign-in, and credit problems | None |
+| [`biohub-setup`](../plugins/biohub-esm/skills/biohub-setup/) | Connects the Biohub MCP, signs you in, and fixes connection, sign-in, and credit problems | None |
 
 ## Installation
 
-Install the `biohub-esm` plugin for the complete set of skills and the MCP connection:
+Install the `biohub` plugin for the complete set of skills and the MCP connection:
 
 - [Claude Code](install/claude-code.md)
 - [Codex](install/codex.md)
@@ -26,7 +26,7 @@ Install the `biohub-esm` plugin for the complete set of skills and the MCP conne
 
 ### Routing
 
-The `biohub-esm` skill is the entry point.
+The `biohub` skill is the entry point.
 It identifies the scientific goal first, because ESMC, ESMFold2, and the Atlas answer different questions, then hands the request to one specialist skill.
 It declines binder design, and says when a request needs something the Biohub MCP does not offer, such as an MSA, modified residues, or embeddings.
 

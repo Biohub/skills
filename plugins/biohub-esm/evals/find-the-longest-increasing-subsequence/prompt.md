@@ -1,5 +1,5 @@
 ---
-description: A request that mentions a sequence but has nothing to do with proteins must not fire any Biohub ESM skill or Biohub MCP tool.
+description: A request that mentions a sequence but has nothing to do with proteins must not fire any Biohub skill or Biohub MCP tool.
 expected_outcome: Claude answers 3, 10, 20 directly, with no plugin skill and no Biohub MCP call.
 tags: [smoke, negative]
 max_turns: 10

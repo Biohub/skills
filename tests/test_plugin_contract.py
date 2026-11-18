@@ -1,7 +1,7 @@
-"""Static checks on the plugins' manifests and licenses, and on biohub-esm's skills.
+"""Static checks on the plugins' manifests and licenses, and on Biohub's skills.
 
 They cover what `claude plugin validate` does not: the Codex manifest, version sync across
-manifests, marketplace entries, license copies, the biohub-esm skills' shared rules, and the
+manifests, marketplace entries, license copies, the Biohub skills' shared rules, and the
 argument names and limits the skills state for the Biohub MCP tools.
 """
 
@@ -83,20 +83,38 @@ class PluginContractTest(unittest.TestCase):
         for plugin in PLUGINS:
             claude = read_json(plugin / ".claude-plugin" / "plugin.json")
             codex = read_json(plugin / ".codex-plugin" / "plugin.json")
-            self.assertEqual(claude["name"], plugin.name)
+            self.assertEqual(claude["name"], "biohub" if plugin == PLUGIN else plugin.name)
             for field in ("name", "version", "description", "license", "author", "homepage"):
                 with self.subTest(plugin=plugin.name, field=field):
                     self.assertEqual(claude[field], codex[field])
             self.assertRegex(claude["version"], r"^\d+\.\d+\.\d+$")
 
     def test_mcp_config_is_the_biohub_server(self) -> None:
-        servers = read_json(PLUGIN / ".mcp.json")["mcpServers"]
-        self.assertEqual(servers, {"biohub": {"type": "http", "url": MCP_URL}})
+        manifest = read_json(PLUGIN / ".codex-plugin" / "plugin.json")
+        servers = read_json(PLUGIN / manifest["mcpServers"])["mcpServers"]
+        self.assertEqual(
+            servers,
+            {
+                "biohub": {
+                    "type": "http",
+                    "url": MCP_URL,
+                    "extensions": {
+                        "com.openai": {"auth": {"type": "oauth", "client": {"mode": "cimd"}}}
+                    },
+                }
+            },
+        )
 
     def test_marketplaces_list_every_plugin(self) -> None:
         claude = read_json(ROOT / ".claude-plugin" / "marketplace.json")["plugins"]
         codex = read_json(ROOT / ".agents" / "plugins" / "marketplace.json")["plugins"]
-        expected = {plugin.name: f"./plugins/{plugin.name}" for plugin in PLUGINS}
+        expected = {
+            read_json(plugin / ".codex-plugin" / "plugin.json")["name"]: f"./plugins/{plugin.name}"
+            for plugin in PLUGINS
+        }
+        self.assertEqual(len(expected), len(PLUGINS))
+        self.assertEqual(read_json(ROOT / ".claude-plugin" / "marketplace.json")["name"], "biohub")
+        self.assertEqual(read_json(ROOT / ".agents/plugins/marketplace.json")["name"], "biohub")
         self.assertEqual({entry["name"]: entry["source"] for entry in claude}, expected)
         self.assertEqual({entry["name"]: entry["source"]["path"] for entry in codex}, expected)
 

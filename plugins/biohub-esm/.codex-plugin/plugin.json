@@ -1,7 +1,7 @@
 {
-  "name": "biohub-esm",
-  "version": "1.0.0",
-  "description": "Understand proteins with ESM on the Biohub MCP: score mutations, find constrained and tolerant positions, fold and view proteins and complexes, and discover relatives in the ESM Atlas.",
+  "name": "biohub",
+  "version": "1.0.3",
+  "description": "Fold proteins and complexes with ESMFold2, find which mutations to test with ESMC, and search 6.8 billion proteins in the ESM Atlas to discover uncharacterized relatives.",
   "author": {
     "name": "Chan Zuckerberg Biohub, Inc.",
     "email": "support@biohub.org",
@@ -25,9 +25,9 @@
   "skills": "./skills",
   "mcpServers": "./.mcp.json",
   "interface": {
-    "displayName": "Biohub ESM",
+    "displayName": "Biohub",
     "shortDescription": "Understand proteins with ESM",
-    "longDescription": "Biohub ESM helps you understand proteins from a name, accession, or sequence: score named mutations, find where a protein is constrained or tolerant, fold and view proteins and complexes with DNA, RNA, or ligands, and discover related proteins and their learned features in the ESM Atlas. It runs on the Biohub MCP after you sign in to Biohub, needs no API key or local install, and reports confidence, cost, and sources with every result.",
+    "longDescription": "Fold proteins and complexes with ESMFold2, find which mutations to test with ESMC, and search 6.8 billion proteins in the ESM Atlas to discover uncharacterized relatives.\n\nThe official plugin for Biohub. Run our state-of-the-art protein models, ESMFold2 and ESMC, and search the ESM Atlas of 6.8 billion proteins, all in ChatGPT. Ask your biological question in plain language, and ChatGPT picks the right model and runs it on Biohub’s infrastructure.\n\nWhat you can do:\n • Predict structures of proteins and complexes with peptides, DNA, RNA, and ligands using ESMFold2.\n • Decide which variants to test. ESMC scores every possible substitution, so you can see where a protein is constrained or tolerant.\n • Find relatives that sequence search misses. The ESM Atlas compares proteins by SAE features the model has learned, not by alignment, so it can surface uncharacterized families.\n • Form hypotheses about function. See which interpretable ESMC features a protein activates and map them onto its structure, residue by residue.",
     "developerName": "Chan Zuckerberg Biohub, Inc.",
     "category": "Education & Research",
     "capabilities": [
@@ -37,14 +37,79 @@
     "websiteURL": "https://biohub.ai/esm/protein",
     "privacyPolicyURL": "https://biohub.org/privacy-policy/",
     "termsOfServiceURL": "https://biohub.org/terms-of-use/",
-    "supportURL": "https://biohub.org/contact/",
+    "supportURL": "https://docs.biohub.ai/biohub-mcp/quickstart",
     "brandColor": "#6E4FF9",
     "composerIcon": "./assets/app-icon.svg",
     "logo": "./assets/app-icon.svg",
     "defaultPrompt": [
-      "Where is GB1 most constrained or tolerant to mutation? Show me on its structure.",
-      "Fold human hemoglobin as an alpha2-beta2 tetramer from P69905 and P68871, and show me the complex.",
-      "Find proteins similar to GB1 and show me the closest one."
+      "Map the mutational landscape of PETase and show me where it is most constrained or tolerant.",
+      "Show me what ESMC has learned about ATP synthase and map the strongest features onto its structure.",
+      "Model how a modified GLP-1 peptide with a lipid linker might engage GLP-1R, then show me the complex."
     ]
+  },
+  "extensions": {
+    "com.openai": {
+      "onboardingSkill": "./skills/biohub-setup/SKILL.md",
+      "review": {
+        "commerce": false,
+        "prompts": [
+          "Find human hemoglobin alpha, UniProt P69905, and report its name, organism, and sequence length.",
+          "Find proteins similar to this GB1 sequence in the ESM Atlas and explain the closest hits: MTYKLILNGKTLKGETTTEAVDAATAEKVFKQYANDNGVDGEWTYDDATKTFTVTE",
+          "Explain ESM Atlas SAE feature 13, including its activation pattern and example protein families."
+        ],
+        "test_cases": {
+          "positive": [
+            {
+              "description": "Resolve a named protein without inventing a sequence.",
+              "prompt": "Find human hemoglobin alpha, UniProt P69905, and report its name, organism, and sequence length.",
+              "tools_triggered": "esm_atlas_search_uniprot",
+              "expected_behavior": "Search query includes P69905. Report the returned name, organism and sequence length, with the accession and source. Do not infer a structure or run a fold."
+            },
+            {
+              "description": "Find related proteins by learned feature similarity.",
+              "prompt": "Find proteins similar to this GB1 sequence in the ESM Atlas and explain the closest hits: MTYKLILNGKTLKGETTTEAVDAATAEKVFKQYANDNGVDGEWTYDDATKTFTVTE",
+              "tools_triggered": "esm_atlas_search_similar_protein_clusters",
+              "expected_behavior": "Use the supplied sequence. Report hits in returned order using returned accessions and annotations; distinguish learned feature similarity from sequence identity and experimental evidence. Do not invent hits or binding claims."
+            },
+            {
+              "description": "Explain a learned feature using the feature dictionary.",
+              "prompt": "Explain ESM Atlas SAE feature 13, including its activation pattern and example protein families.",
+              "tools_triggered": "esm_atlas_get_sae_feature_detail",
+              "expected_behavior": "Request feature_index=13. Explain the returned label, activation pattern and available family examples. Treat these as learned model features, not experimentally established function."
+            },
+            {
+              "description": "Score a single mutation; requires a signed-in account with ESMC access and sufficient credits.",
+              "prompt": "Score W43F in this GB1 sequence with ESMC: MTYKLILNGKTLKGETTTEAVDAATAEKVFKQYANDNGVDGEWTYDDATKTFTVTE",
+              "tools_triggered": "esmc_score_mutations",
+              "expected_behavior": "Use the supplied sequence and mutation W43F once. Report the score and credit information actually returned; distinguish a model score from measured activity or stability. Do not fold. If auth, permissions or credits block the call, report that failure without a fabricated score; successful scoring remains unverified."
+            },
+            {
+              "description": "Show a protein with the packaged viewer; requires a host supporting MCP Apps.",
+              "prompt": "Show me the 3D structure of this GB1 protein: MTYKLILNGKTLKGETTTEAVDAATAEKVFKQYANDNGVDGEWTYDDATKTFTVTE",
+              "tools_triggered": "ui_show_structure",
+              "expected_behavior": "Use one protein entity with the supplied sequence and one copy. Display the interactive structure where supported; use include_png=true if a PNG fallback is needed. Label the source and confidence from the result as a prediction. Do not invoke a separate fold tool or claim experimental validation. If the call fails, report the error without claiming a view succeeded."
+            }
+          ],
+          "negative": [
+            {
+              "description": "Decline binder design without invoking Biohub tools. Explain that this plugin does not support binder design and do not call Biohub tools or invent a designed sequence.",
+              "prompt": "Design a new minibinder against human PD-L1 and give me the designed sequence."
+            },
+            {
+              "description": "Explain that MSA-conditioned folding is unsupported instead of dropping the MSA. Explain that the plugin does not support MSA input. Do not silently discard the MSA or call a folding tool with only the sequence.",
+              "prompt": "Fold this sequence using my multiple sequence alignment, preserving the alignment conditioning: MTYKLILNGKTLKGETTTEAVDAATAEKVFKQYANDNGVDGEWTYDDATKTFTVTE"
+            },
+            {
+              "description": "Decline unsupported embedding extraction. Explain that this plugin does not expose raw ESMC embeddings; optionally point to the open weights. Do not substitute mutation scoring or SAE features and do not invoke a Biohub inference tool.",
+              "prompt": "Return the raw ESMC embedding vector for this protein: MTYKLILNGKTLKGETTTEAVDAATAEKVFKQYANDNGVDGEWTYDDATKTFTVTE"
+            }
+          ]
+        }
+      },
+      "publication": {
+        "countries": [],
+        "release_notes": "Updates the listing and skill text to consistently use Biohub, renames the router and setup skills to biohub and biohub-setup, and updates onboarding and cross-references."
+      }
+    }
   }
 }

@@ -11,7 +11,7 @@ If explicit user instructions conflict with a skill's instructions, prioritize t
 
 ESMC is a sequence-only masked protein language model, and it runs on the Biohub MCP.
 Every tool needs the user to be signed in to Biohub.
-If the tools are not in the catalog, say the Biohub MCP is not connected or the user is not signed in, and point to `$biohub-esm-setup`; if that skill is not installed, tell the user to add the Biohub MCP at `https://biohub.ai/mcp` to their client, which signs them in to Biohub.
+If the tools are not in the catalog, say the Biohub MCP is not connected or the user is not signed in, and point to `$biohub-setup`; if that skill is not installed, tell the user to add the Biohub MCP at `https://biohub.ai/mcp` to their client, which signs them in to Biohub.
 
 ## Choose the tool
 

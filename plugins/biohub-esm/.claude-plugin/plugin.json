@@ -1,8 +1,8 @@
 {
-  "name": "biohub-esm",
-  "displayName": "Biohub ESM",
-  "version": "1.0.0",
-  "description": "Understand proteins with ESM on the Biohub MCP: score mutations, find constrained and tolerant positions, fold and view proteins and complexes, and discover relatives in the ESM Atlas.",
+  "name": "biohub",
+  "displayName": "Biohub",
+  "version": "1.0.3",
+  "description": "Fold proteins and complexes with ESMFold2, find which mutations to test with ESMC, and search 6.8 billion proteins in the ESM Atlas to discover uncharacterized relatives.",
   "author": {
     "name": "Chan Zuckerberg Biohub, Inc.",
     "email": "support@biohub.org",

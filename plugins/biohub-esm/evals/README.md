@@ -1,6 +1,6 @@
-# Biohub ESM eval suite
+# Biohub eval suite
 
-This folder holds the `claude plugin eval` suite for the Biohub ESM plugin.
+This folder holds the `claude plugin eval` suite for the Biohub plugin.
 It needs Claude Code v2.1.269 or later and git 2.31 or later.
 Every agent run and every `llm` grader is a real model call that counts against your Claude plan's usage or your API bill, so set `--max-cost-usd` on every run.
 Results land in `evals/results/`, which the repository ignores.

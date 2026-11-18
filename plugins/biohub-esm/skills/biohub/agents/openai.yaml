@@ -1,5 +1,5 @@
 interface:
-  display_name: "Biohub ESM Router"
+  display_name: "Biohub Router"
   short_description: "Route to ESMC, ESMFold2, or the ESM Atlas"
   default_prompt: "Help me choose the best ESM workflow for this project."
 policy:

@@ -1,4 +1,4 @@
-The `biohub-esm` plugin contains no runtime code; its skills call the Biohub MCP.
+The `biohub` plugin contains no runtime code; its skills call the Biohub MCP.
 The skills point to the following model weights for running the models on your own compute, which you download separately:
 
 | Model | License | Link |

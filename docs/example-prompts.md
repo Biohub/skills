@@ -1,6 +1,6 @@
 # Example prompts
 
-You do not need to name a skill: in Codex the `biohub-esm` router picks one, and in Claude Code the matching skill activates directly.
+You do not need to name a skill: in Codex the `biohub` router picks one, and in Claude Code the matching skill activates directly.
 Every prompt needs the Biohub MCP connected and signed in.
 
 ## ESM Atlas (`esm-atlas`)
@@ -36,13 +36,13 @@ Showing one protein is free; complexes and score-only folds use credits.
 
 Prompts that say "my" or "this" use the sequences you supply and never substitute an example.
 
-## Router (`biohub-esm`)
+## Router (`biohub`)
 
 - Help me choose the best ESM workflow for this project.
 - Which ESM route should I use for a private 700-residue protein?
 - How does ESMFold2 compare with AlphaFold?
 
-## Setup (`biohub-esm-setup`)
+## Setup (`biohub-setup`)
 
 - Is the Biohub MCP connected, and am I signed in?
 - Why are the Biohub tools missing?
@@ -50,4 +50,4 @@ Prompts that say "my" or "this" use the sequences you supply and never substitut
 ## Addressing a skill directly
 
 In Codex, prefix a prompt with the skill name, for example `$esm-atlas Find proteins similar to GB1.`
-In Claude Code, the plugin's skills appear with the plugin prefix, such as `biohub-esm:esm-atlas`; describe the task and the matching skill activates.
+In Claude Code, the plugin's skills appear with the plugin prefix, such as `biohub:esm-atlas`; describe the task and the matching skill activates.

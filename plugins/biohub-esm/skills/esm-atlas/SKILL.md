@@ -26,7 +26,7 @@ Every reply, including a clarifying question, states limits and choices as facts
 | Structure view | `ui_show_structure` |
 
 A host may show a server prefix around a name, so match the name and never hard-code a prefix.
-If these tools are not in the catalog, say the Biohub MCP is not connected or the user is not signed in, and point to `$biohub-esm-setup`; if that skill is not installed, tell the user to add the Biohub MCP at `https://biohub.ai/mcp` to their client, which signs them in to Biohub.
+If these tools are not in the catalog, say the Biohub MCP is not connected or the user is not signed in, and point to `$biohub-setup`; if that skill is not installed, tell the user to add the Biohub MCP at `https://biohub.ai/mcp` to their client, which signs them in to Biohub.
 Read [the MCP tool reference](references/mcp-tools.md) for arguments, returned fields, and error codes.
 
 ## Resolve the input
