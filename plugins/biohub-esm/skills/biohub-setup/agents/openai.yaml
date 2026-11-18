@@ -1,5 +1,5 @@
 interface:
-  display_name: "Biohub ESM Setup"
+  display_name: "Biohub Setup"
   short_description: "Connect and sign in to the Biohub MCP"
   default_prompt: "Is the Biohub MCP connected, and am I signed in?"
 policy:

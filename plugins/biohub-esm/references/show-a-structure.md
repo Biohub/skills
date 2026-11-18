@@ -1,12 +1,14 @@
 # Show a structure with the Biohub MCP
 
-Every Biohub ESM skill shows structures with one Biohub MCP tool, `ui_show_structure`.
+Every Biohub skill shows structures with one Biohub MCP tool, `ui_show_structure`.
 Hosts that render MCP Apps show an interactive Mol* viewer the user can rotate, recolor, and select residues in.
 The tool writes no files and creates no link.
 Match the tool name in the connected catalog, because a host can add a server prefix.
+A request to show molecules in the app is a visualization request, not a request to edit the app's source unless the user explicitly asks for a software change.
 
 ## Call it
 
+- Once the molecular inputs and any needed approximation are settled, call `ui_show_structure`; listing resources or announcing a plan is not a completed view.
 - Pass `entities`, one per molecule, in order: `protein`, `dna`, or `rna` with a `sequence`, or `ligand` with one `ccd` code or one `smiles` string.
   Chains are labelled A, B, C, ... in that order. For identical chains, set `copies` on one entity, such as 2 for a homodimer, and never concatenate chains.
 - One protein entity is free. It shows the stored ESM Atlas structure, or the server's own prediction for up to 700 residues.
@@ -33,11 +35,13 @@ Match the tool name in the connected catalog, because a host can add a server pr
 - The result has no image unless `include_png` is true, and `preview_status: not_requested` is not a failure.
   Set `include_png: true` only when the answer depends on the structure's shape, or the client cannot render MCP Apps.
 - Without an image, do not describe how the structure looks. Never draw, render, or write viewer code for a structure yourself, and never show other coordinates, such as an experimental PDB entry, in its place.
+- Separate entities do not imply a covalent bond.
+  Keep any substitutions, omitted attachments, and independent fragments explicit when interpreting an approximate model.
 - Every structure is a computational prediction, not an experimental structure. When the user asks for an experimental method, resolution, or citation, say the view does not provide one.
 
 ## When it fails
 
-- If the tool is not in the catalog, say the Biohub MCP is not connected or the user is not signed in, and point to `$biohub-esm-setup`.
+- If the tool is not in the catalog, say the Biohub MCP is not connected or the user is not signed in, and point to `$biohub-setup`.
 - A call the host blocks, for example by denying approval, is a failure, not a missing connection.
 - On `rate_limited`, wait as the error advises before one retry. On `indeterminate`, never retry. For any other code, name the tool and the code.
 - A failed view never changes the result of the analysis it was showing.

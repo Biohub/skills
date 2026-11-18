@@ -1,4 +1,4 @@
-# Biohub ESM plugin
+# Biohub plugin
 
 This plugin turns protein questions into calls to the [Biohub MCP](https://biohub.ai/mcp), which runs ESMC, ESMFold2, and the ESM Atlas.
 It is instructions only: five skills, two shared references, and `.mcp.json`, which declares the server as `biohub`.
@@ -7,18 +7,18 @@ It runs no local code and needs no API key; the user signs in to Biohub through 
 Install it in Claude Code 2.1.275 or later with:
 
 ```bash
-/plugin install biohub-esm --marketplace Biohub/skills
+/plugin install biohub --marketplace Biohub/skills
 ```
 
 ## Skills
 
 | Skill | Uses |
 | --- | --- |
-| `biohub-esm` | Routes a request to one of the skills below |
+| `biohub` | Routes a request to one of the skills below |
 | `esm-atlas` | `esm_atlas_*` tools and `ui_show_structure` |
 | `esmc` | `esmc_score_mutations`, `esmc_scan_mutation_tolerance`, and `ui_show_structure` |
 | `esmfold2` | `ui_show_structure`, `esmfold2_fold_complex`, `esmfold2_fold_max_accuracy`, and `biohub_get_inference_run` |
-| `biohub-esm-setup` | Connecting and signing in to the Biohub MCP |
+| `biohub-setup` | Connecting and signing in to the Biohub MCP |
 
 Shared references:
 
@@ -27,9 +27,9 @@ Shared references:
 
 ## Plugin-page prompts
 
-- `Where is GB1 most constrained or tolerant to mutation? Show me on its structure.`
-- `Fold human hemoglobin as an alpha2-beta2 tetramer from P69905 and P68871, and show me the complex.`
-- `Find proteins similar to GB1 and show me the closest one.`
+- `Map the mutational landscape of PETase and show me where it is most constrained or tolerant.`
+- `Show me what ESMC has learned about ATP synthase and map the strongest features onto its structure.`
+- `Model how a modified GLP-1 peptide with a lipid linker might engage GLP-1R, then show me the complex.`
 
 ## Checks
 

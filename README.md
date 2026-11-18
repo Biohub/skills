@@ -20,7 +20,7 @@ With the skills installed, an agent can:
 
 Every skill runs on the [Biohub MCP](https://biohub.ai/mcp), a remote server you sign in to with a Biohub account.
 The skills pick the right tool for each request, cite the tools behind every answer, report credits used, and report model confidence as a prediction.
-They ship together as the `biohub-esm` plugin for Claude Code and Codex, and they also install into other Agent Skills runtimes.
+They ship together as the `biohub` plugin for Claude Code and Codex, and they also install into other Agent Skills runtimes.
 
 ## Project status
 
@@ -32,7 +32,7 @@ We're not accepting contributions yet; see [CONTRIBUTING.md](CONTRIBUTING.md).
 
 | Path | Contents |
 | --- | --- |
-| [`plugins/biohub-esm/`](plugins/biohub-esm/) | The `biohub-esm` plugin: skills, references, the MCP connection, and evals |
+| [`plugins/biohub-esm/`](plugins/biohub-esm/) | The `biohub` plugin: skills, references, the MCP connection, and evals |
 | [`plugins/biohub-esm/skills/`](plugins/biohub-esm/skills/) | The five skills |
 | [`docs/`](docs/) | Skill catalog, install guides, MCP connection guide, example prompts, and how to evaluate answers |
 | [`.claude-plugin/marketplace.json`](.claude-plugin/marketplace.json) | Claude Code marketplace |
@@ -44,11 +44,11 @@ We're not accepting contributions yet; see [CONTRIBUTING.md](CONTRIBUTING.md).
 
 | Skill | What it does |
 | --- | --- |
-| `biohub-esm` | Routes a protein request to the right skill, and says plainly what the plugin does not offer |
+| `biohub` | Routes a protein request to the right skill, and says plainly what the plugin does not offer |
 | `esm-atlas` | Finds similar proteins, resolves names and accessions, describes SAE features and clusters, and shows Atlas structures |
 | `esmc` | Scores named mutations and scans a protein for constrained and tolerant positions |
 | `esmfold2` | Folds and shows proteins and complexes, and reports pTM, ipTM, and pLDDT |
-| `biohub-esm-setup` | Connects the Biohub MCP, signs you in, and fixes connection or sign-in problems |
+| `biohub-setup` | Connects the Biohub MCP, signs you in, and fixes connection or sign-in problems |
 
 See [docs/skills.md](docs/skills.md) for what each skill does, how the skills work together, and their scientific foundations.
 
@@ -62,14 +62,14 @@ In Claude Code:
 
 ```bash
 claude plugin marketplace add Biohub/skills
-claude plugin install biohub-esm@biohub-esm
+claude plugin install biohub@biohub
 ```
 
 In Codex:
 
 ```bash
 codex plugin marketplace add Biohub/skills
-codex plugin add biohub-esm@biohub-esm
+codex plugin add biohub@biohub
 ```
 
 In Cursor, Gemini CLI, or any other [Agent Skills](https://agentskills.io) runtime:

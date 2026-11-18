@@ -8,7 +8,7 @@ labels: bug
 For example, Claude Code 2.1.280, Codex 0.50, or Cursor.
 
 **Skill and plugin version**
-For example, `esm-atlas` from `biohub-esm`, with the version your host shows for the plugin.
+For example, `esm-atlas` from `biohub`, with the version your host shows for the plugin.
 
 **Prompt**
 The exact prompt you gave the agent.

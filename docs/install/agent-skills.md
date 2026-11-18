@@ -41,10 +41,10 @@ It does not copy the plugin's shared references, and it does not connect the Bio
 | Skill | Works standalone | Needs the plugin for |
 | --- | --- | --- |
 | `esm-atlas` | Everything, once you [connect the Biohub MCP](../connect-mcp.md) | The shared viewer and safety references it links to |
-| `biohub-esm` | Routing | The shared references it links to |
+| `biohub` | Routing | The shared references it links to |
 | `esmc` | Everything, once you connect the Biohub MCP | The shared viewer reference it links to |
 | `esmfold2` | Everything, once you connect the Biohub MCP | The shared viewer reference it links to |
-| `biohub-esm-setup` | Everything | Nothing |
+| `biohub-setup` | Everything | Nothing |
 
 The skills work without the shared references; they hold the viewer and safety details that every skill follows.
 For those, install the plugin in [Claude Code](claude-code.md) or [Codex](codex.md).

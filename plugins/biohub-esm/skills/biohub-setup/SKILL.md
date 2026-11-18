@@ -1,15 +1,15 @@
 ---
-name: biohub-esm-setup
-description: Connect and sign in to the Biohub MCP that every Biohub ESM skill uses, and fix connection, sign-in, permission, or credit problems. Use when the Biohub tools are missing from the catalog, a tool returns an authentication or permission error, or the user asks how to install or set up Biohub ESM. Never ask for secret values.
+name: biohub-setup
+description: Connect and sign in to the Biohub MCP that every Biohub skill uses, and fix connection, sign-in, permission, or credit problems. Use when the Biohub tools are missing from the catalog, a tool returns an authentication or permission error, or the user asks how to install or set up Biohub. Never ask for secret values.
 license: MIT
 ---
 
-# Biohub ESM setup
+# Biohub setup
 
 The user's instructions take precedence over guidelines provided in a skill.
 If explicit user instructions conflict with a skill's instructions, prioritize the user's instructions.
 
-Every Biohub ESM skill runs on one remote server, the Biohub MCP at `https://biohub.ai/mcp`.
+Every Biohub skill runs on one remote server, the Biohub MCP at `https://biohub.ai/mcp`.
 It needs no API key, no local Python, and no other install. The user signs in to Biohub once, in the browser, through the host.
 The plugin declares the server in `.mcp.json` as `biohub`, so a plugin install adds it.
 

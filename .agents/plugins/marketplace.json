@@ -1,11 +1,11 @@
 {
-  "name": "biohub-esm",
+  "name": "biohub",
   "interface": {
-    "displayName": "Biohub ESM"
+    "displayName": "Biohub"
   },
   "plugins": [
     {
-      "name": "biohub-esm",
+      "name": "biohub",
       "source": {
         "source": "local",
         "path": "./plugins/biohub-esm"

@@ -9,7 +9,7 @@ The Biohub MCP server runs ESMC, ESMFold2, ESM Atlas search, and a Mol* structur
 | Authentication | OAuth sign-in with a Biohub account; no API key |
 | Suggested server name | `biohub` |
 
-The `biohub-esm` plugin for Claude Code and Codex adds this server for you; you still sign in once.
+The `biohub` plugin for Claude Code and Codex adds this server for you; you still sign in once.
 Add it yourself when you use the skills without the plugin, or when you want the Biohub tools in a chat app.
 Signing in opens a Biohub page in your browser, where you can also create a free account.
 
